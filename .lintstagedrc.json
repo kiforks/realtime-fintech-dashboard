@@ -2,5 +2,5 @@
 	"*.{ts,js,html}": ["eslint"],
 	"*.scss": ["stylelint"],
 	"*.{ts,js,html,scss,json,md,yml}": ["prettier --check"],
-	"*.rs": ["rustfmt --check --edition 2024"]
+	"*.rs": ["node scripts/with-rust.mjs rustfmt --check --edition 2024"]
 }
