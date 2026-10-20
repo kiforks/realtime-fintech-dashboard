@@ -1,8 +1,9 @@
 import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
-import { MarketFeedService } from '~modules/market/entities';
-import { ROOT_ROUTES } from '~pages';
+import { ROOT_ROUTES } from './routes';
+
+import { MarketFeedService } from '~/entities/market';
 
 export const appConfig: ApplicationConfig = {
 	providers: [

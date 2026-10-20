@@ -32,6 +32,52 @@ const withNonTranslatableAttributes = config => {
 	};
 };
 
+const RESTRICTED_IMPORTS_RULE = 'no-restricted-imports';
+const APP_LAYER_FILES = '**/app/**/*.{ts,tsx,js,jsx}';
+const PUBLIC_API_PATTERNS = [
+	{
+		group: ['~/entities/*/*', '!~/entities/*/testing', '~/pages/*/*', '!~/pages/*/testing'],
+		message: '❌ Import a slice only through its public API: index.ts, or testing.ts in tests.',
+	},
+	{
+		group: ['~/shared/*/*'],
+		message: '❌ Import a shared segment only through its index.ts.',
+	},
+];
+const SLICE_ISOLATION_PATTERNS = {
+	entities: {
+		group: ['~/entities/*'],
+		message: '❌ An entity must not import another entity; inside a slice use relative imports.',
+	},
+	pages: {
+		group: ['~/pages/*'],
+		message: '❌ A page must not import another page; inside a slice use relative imports.',
+	},
+};
+
+const withSliceBoundaries = config => {
+	const restrictedImports = config.rules?.[RESTRICTED_IMPORTS_RULE];
+
+	if (!Array.isArray(restrictedImports)) {
+		return config;
+	}
+
+	const [severity, options] = restrictedImports;
+	const layer = config.files.at(0).split('/').at(1);
+	const isolationPatterns = layer in SLICE_ISOLATION_PATTERNS ? [SLICE_ISOLATION_PATTERNS[layer]] : [];
+
+	return {
+		...config,
+		rules: {
+			...config.rules,
+			[RESTRICTED_IMPORTS_RULE]: [
+				severity,
+				{ ...options, patterns: [...options.patterns, ...PUBLIC_API_PATTERNS, ...isolationPatterns] },
+			],
+		},
+	};
+};
+
 /** @type { import("eslint").Linter.Config[] } */
 export default [
 	...kiforJavascript,
@@ -61,7 +107,13 @@ export default [
 			'vitest/prefer-expect-resolves': 'off',
 		},
 	},
-	...kiforFsd,
+	...kiforFsd.map(withSliceBoundaries),
+	{
+		files: [APP_LAYER_FILES],
+		rules: {
+			[RESTRICTED_IMPORTS_RULE]: ['error', { patterns: PUBLIC_API_PATTERNS }],
+		},
+	},
 	{
 		ignores: [
 			'src/app/index.html',

@@ -16,9 +16,7 @@
 		"target": "ES2022",
 		"module": "preserve",
 		"paths": {
-			"~modules/*": ["./src/modules/*"],
-			"~pages": ["./src/pages/index.ts"],
-			"~shared/*": ["./src/shared/*"],
+			"~/*": ["./src/*"],
 			"~wasm/*": ["./wasm/pkg/*"]
 		}
 	},
