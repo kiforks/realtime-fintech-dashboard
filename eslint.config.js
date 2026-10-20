@@ -125,6 +125,7 @@ export default [
 			'node_modules/',
 			'.vscode/',
 			'.idea/',
+			'.claude/',
 		],
 	},
 ];
