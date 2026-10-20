@@ -33,6 +33,12 @@ describe(DashboardPageComponent, () => {
 		expect(await harness.errorText).toBeNull();
 	});
 
+	it('should let keyboard users reach the scrolling metrics table by its caption', async () => {
+		expect(await harness.tableLabel).toBe(
+			'Metrics since the current run started. A dash means the value cannot be calculated yet.'
+		);
+	});
+
 	it('should describe a single instrument and a single update in the singular', async () => {
 		TestBed.inject(MarketFeedService).apply({ batchIntervalMs: 1000, instrumentCount: 1, updatesPerBatch: 1 });
 

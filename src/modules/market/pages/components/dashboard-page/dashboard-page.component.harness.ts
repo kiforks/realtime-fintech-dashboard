@@ -37,6 +37,13 @@ export class DashboardPageHarness extends ComponentHarness {
 		return this.locatorForOptional('[data-po="dashboard-page-error"]')().then(error => error?.text() ?? null);
 	}
 
+	public get tableLabel(): Promise<string> {
+		return this.locatorFor('[data-po="dashboard-page-table"][role="region"][tabindex="0"]')()
+			.then(table => table.getAttribute('aria-labelledby'))
+			.then(labelId => this.locatorFor(`[id="${labelId ?? ''}"]`)())
+			.then(label => label.text());
+	}
+
 	public get rows(): Promise<string[][]> {
 		return this.locatorForAll(DashboardPageRowHarness)().then(rows => Promise.all(rows.map(row => row.cellTexts)));
 	}
