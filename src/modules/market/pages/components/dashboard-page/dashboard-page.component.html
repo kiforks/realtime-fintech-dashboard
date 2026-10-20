@@ -4,10 +4,12 @@
 		<span class="dashboard-page-status" i18n role="status" data-po="dashboard-page-status">
 			{status(), select, running {Running} paused {Paused} failed {Failed}}
 		</span>
+		@let updatesPerSecond = settings() | updatesPerSecond;
 		<span class="dashboard-page-rate" i18n data-po="dashboard-page-rate">
 			{settings().instrumentCount, plural, =1 {1 instrument,} other {{{ settings().instrumentCount }} instruments,}}
 			{settings().updatesPerBatch, plural, =1 {1 update} other {{{ settings().updatesPerBatch }} updates}}
-			every {{ settings().batchIntervalMs }} ms ({{ settings() | updatesPerSecond | number }} updates/s)
+			every {{ settings().batchIntervalMs }} ms
+			{updatesPerSecond, plural, =1 {(1 update/s)} other {({{ updatesPerSecond | number }} updates/s)}}
 		</span>
 		<button
 			class="dashboard-page-toggle"

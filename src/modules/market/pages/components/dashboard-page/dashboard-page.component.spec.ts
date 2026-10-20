@@ -34,9 +34,9 @@ describe(DashboardPageComponent, () => {
 	});
 
 	it('should describe a single instrument and a single update in the singular', async () => {
-		TestBed.inject(MarketFeedService).apply({ batchIntervalMs: 2000, instrumentCount: 1, updatesPerBatch: 1 });
+		TestBed.inject(MarketFeedService).apply({ batchIntervalMs: 1000, instrumentCount: 1, updatesPerBatch: 1 });
 
-		expect(await harness.rateText).toBe('1 instrument, 1 update every 2000 ms (0.5 updates/s)');
+		expect(await harness.rateText).toBe('1 instrument, 1 update every 1000 ms (1 update/s)');
 	});
 
 	it('should format prices as currency, volume with digit grouping and the imbalance as a signed ratio', async () => {
