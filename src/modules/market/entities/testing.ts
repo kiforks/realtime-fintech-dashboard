@@ -1,1 +1,7 @@
-export { InstrumentStatsMock, MarketBatchGeneratorMock, MarketBatchMock, MarketUpdateMock } from './mocks';
+export {
+	InstrumentStatsMock,
+	MarketBatchGeneratorMock,
+	MarketBatchMock,
+	MarketUpdateMock,
+	MarketWorkerMock,
+} from './mocks';
