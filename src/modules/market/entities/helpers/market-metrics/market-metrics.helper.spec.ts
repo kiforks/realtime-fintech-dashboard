@@ -137,6 +137,19 @@ describe(MarketMetricsHelper, () => {
 			});
 		});
 
+		it('should keep fractional cents in the VWAP for the display to round', () => {
+			expect(MarketMetricsHelper.toMetrics(new InstrumentStatsMock({ notionalCents: 20001, volume: 2 }))).toStrictEqual(
+				{
+					imbalance: 0.2,
+					lastPriceCents: 10200,
+					spreadCents: 4,
+					symbol: 'ALFA',
+					volume: 2,
+					vwapCents: 10000.5,
+				}
+			);
+		});
+
 		it('should report unavailable metrics and zero volume before any data arrives', () => {
 			const [emptyStats] = MarketMetricsHelper.empty(1);
 
