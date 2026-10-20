@@ -8,6 +8,9 @@ import { RootHarness } from './root.component.harness';
 import { DashboardPageHarness, SettingsPageHarness } from '~modules/market/pages/testing';
 import { ROOT_ROUTES } from '../../root.routes';
 
+import { MARKET_WORKER_FACTORY } from '~modules/market/entities';
+import { MarketWorkerMock } from '~modules/market/entities/testing';
+
 describe(RootComponent, () => {
 	let fixture: ComponentFixture<RootComponent>;
 	let harness: RootHarness;
@@ -16,7 +19,10 @@ describe(RootComponent, () => {
 	beforeEach(async () => {
 		await TestBed.configureTestingModule({
 			imports: [RootComponent],
-			providers: [provideRouter(ROOT_ROUTES)],
+			providers: [
+				provideRouter(ROOT_ROUTES),
+				{ provide: MARKET_WORKER_FACTORY, useValue: () => new MarketWorkerMock() },
+			],
 		}).compileComponents();
 		fixture = TestBed.createComponent(RootComponent);
 		await TestBed.inject(Router).navigateByUrl('/');
