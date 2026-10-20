@@ -42,7 +42,7 @@ flowchart LR
 
 1. **Rust generates, the worker accumulates, Angular derives.** `MarketGenerator` returns a batch of `n` market updates
    as one flat `Uint32Array` with stride 7: `[instrument, priceCents, tradeQuantity, bidCents, askCents, bidQuantity,
-askQuantity]`. `MarketProducer` folds every trade into eight numbers per instrument (latest quote, last price,
+askQuantity]`. `MarketProducer` folds every trade into seven numbers per instrument (latest quote, last price,
    volume and `Σ(price × quantity)`) and posts the cumulative stats once per batch. The main thread turns stats into
    metrics in a `computed` signal.
 2. **The UI cost does not depend on the generation rate.** The worker sends at most one message per batch interval
@@ -76,7 +76,7 @@ application is destroyed.
 
 Prices stay in integer cents end to end; VWAP keeps fractional cents and rounding happens only when a value is
 displayed (cents are rounded first, then divided by 100). Book quantities never add to the volume. `Σ(price × quantity)`
-stays an exact integer below 2⁵³: with prices capped at $1000 that is at least ~12.5 hours at the maximum rate on a
+stays an exact integer below 2⁵³: with mid prices capped at $1000 that is at least ~12.5 hours at the maximum rate on a
 single instrument; past that point the relative error is far below one cent.
 
 ## Market generator (Rust)
@@ -136,16 +136,16 @@ The development server runs at http://localhost:4200/.
 
 ## Scripts
 
-| Script               | What it does                                            |
-| -------------------- | ------------------------------------------------------- |
-| `npm start`          | Development server with live reload                     |
-| `npm run build`      | Production build into `dist/realtime-fintech-dashboard` |
-| `npm test`           | Unit tests (add `-- --coverage` for a coverage report)  |
-| `npm run lint`       | Worker type check, ESLint, Stylelint and Prettier       |
-| `npm run lint:fix`   | The same checks with automatic fixes                    |
-| `npm run build:wasm` | Build the Rust generator into `wasm/pkg` with wasm-pack |
-| `npm run test:wasm`  | Rust unit tests of the generator                        |
-| `npm run lint:wasm`  | rustfmt and clippy checks                               |
+| Script               | What it does                                                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `npm start`          | Development server with live reload                                                                                         |
+| `npm run build`      | Production build into `dist/realtime-fintech-dashboard`                                                                     |
+| `npm test`           | Unit tests (add `-- --coverage` for a coverage report)                                                                      |
+| `npm run lint`       | Worker type check, ESLint, Stylelint and Prettier                                                                           |
+| `npm run lint:fix`   | ESLint, Stylelint and Prettier with automatic fixes (no worker type check; run `npm run build:wasm` first on a clean clone) |
+| `npm run build:wasm` | Build the Rust generator into `wasm/pkg` with wasm-pack                                                                     |
+| `npm run test:wasm`  | Rust unit tests of the generator                                                                                            |
+| `npm run lint:wasm`  | rustfmt and clippy checks                                                                                                   |
 
 ## Project structure
 
@@ -164,4 +164,6 @@ wasm/                         Rust crate `market-generator`, compiled to WebAsse
 
 GitHub Actions runs on every push: rustfmt, clippy and the Rust tests, then lint, unit tests with coverage thresholds
 and the production build. Every push to `main` (each merged pull request) deploys the build to GitHub Pages with an SPA
-fallback for deep links. `main` is protected: changes arrive through pull requests with a green `build` check.
+fallback for deep links: `404.html` is a copy of `index.html`, so a direct link such as `/settings` opens the right
+page while GitHub Pages answers it with HTTP status 404. `main` is protected: changes arrive through pull requests
+with a green `build` check.
