@@ -102,13 +102,24 @@ describe(MarketFeedService, () => {
 		expect(marketFeedService.status()).toBe(ProducerStatus.Running);
 	});
 
-	it('should report a producer error of the current run and stop reacting to pause', () => {
+	it('should report a producer error of the current run, release the worker and stop reacting to pause', () => {
 		worker.emit({ message: 'instrument count must be between 1 and 50, got 0', runId: 1, type: 'error' });
 		marketFeedService.togglePause();
 
 		expect(marketFeedService.status()).toBe(ProducerStatus.Failed);
 		expect(marketFeedService.errorMessage()).toBe('instrument count must be between 1 and 50, got 0');
-		expect(worker.postMessage).toHaveBeenCalledTimes(1);
+		expect(worker.terminate).toHaveBeenCalledTimes(1);
+		expect(workerFactory).toHaveBeenCalledTimes(1);
+	});
+
+	it('should replace the worker after a producer error so the next run starts on a fresh one', () => {
+		worker.emit({ message: 'memory access out of bounds', runId: 1, type: 'error' });
+		marketFeedService.apply(appliedSettings);
+
+		expect(worker.terminate).toHaveBeenCalledTimes(1);
+		expect(workerFactory).toHaveBeenCalledTimes(2);
+		expect(replacementWorker.postMessage).toHaveBeenCalledWith({ runId: 2, settings: appliedSettings, type: 'start' });
+		expect(marketFeedService.status()).toBe(ProducerStatus.Running);
 	});
 
 	it('should stop and explain the failure when the worker crashes', () => {
@@ -126,6 +137,7 @@ describe(MarketFeedService, () => {
 		expect(workerFactory).toHaveBeenCalledTimes(2);
 		expect(replacementWorker.postMessage).toHaveBeenCalledWith({ runId: 2, settings: appliedSettings, type: 'start' });
 		expect(marketFeedService.status()).toBe(ProducerStatus.Running);
+		expect(marketFeedService.errorMessage()).toBeNull();
 	});
 
 	it('should terminate the worker when the application is destroyed', () => {

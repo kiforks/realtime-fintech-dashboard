@@ -5,7 +5,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { SettingsPageComponent } from './settings-page.component';
 import { SettingsPageHarness } from './settings-page.component.harness';
 
-import { MARKET_WORKER_FACTORY } from '~modules/market/entities';
+import { MARKET_WORKER_FACTORY, MarketFeedService } from '~modules/market/entities';
 import { MarketWorkerMock } from '~modules/market/entities/testing';
 import type { MockInstance } from 'vitest';
 
@@ -27,11 +27,24 @@ describe(SettingsPageComponent, () => {
 		);
 	});
 
-	it('should open with the settings of the active run', async () => {
+	it('should open with the default settings of the first run', async () => {
 		expect(await harness.titleText).toBe('Producer settings');
 		expect(await harness.fieldValue('instrument-count')).toBe('5');
 		expect(await harness.fieldValue('updates-per-batch')).toBe('100');
 		expect(await harness.fieldValue('batch-interval')).toBe('500');
+	});
+
+	it('should open again with the settings of the run applied last', async () => {
+		TestBed.inject(MarketFeedService).apply({ batchIntervalMs: 50, instrumentCount: 10, updatesPerBatch: 1000 });
+
+		const reopenedHarness = await TestbedHarnessEnvironment.harnessForFixture(
+			TestBed.createComponent(SettingsPageComponent),
+			SettingsPageHarness
+		);
+
+		expect(await reopenedHarness.fieldValue('instrument-count')).toBe('10');
+		expect(await reopenedHarness.fieldValue('updates-per-batch')).toBe('1000');
+		expect(await reopenedHarness.fieldValue('batch-interval')).toBe('50');
 	});
 
 	it('should leave the producer untouched while the form is edited', async () => {
@@ -39,6 +52,7 @@ describe(SettingsPageComponent, () => {
 
 		expect(worker.postMessage).toHaveBeenCalledTimes(1);
 		expect(await harness.errorText('instrument-count')).toBeNull();
+		expect(await harness.isFieldInvalid('instrument-count')).toBe(false);
 	});
 
 	it.each([
@@ -54,6 +68,7 @@ describe(SettingsPageComponent, () => {
 			await harness.apply();
 
 			expect(await harness.errorText(field)).toBe(error);
+			expect(await harness.isFieldInvalid(field)).toBe(true);
 			expect(worker.postMessage).toHaveBeenCalledTimes(1);
 			expect(navigate).not.toHaveBeenCalled();
 		}
@@ -81,7 +96,7 @@ describe(SettingsPageComponent, () => {
 		expect(navigate).toHaveBeenCalledWith(['/', 'dashboard']);
 	});
 
-	it('should accept the smallest allowed values', async () => {
+	it('should accept one instrument, one update and the longest interval', async () => {
 		await harness.fill('instrument-count', '1');
 		await harness.fill('updates-per-batch', '1');
 		await harness.fill('batch-interval', '2000');

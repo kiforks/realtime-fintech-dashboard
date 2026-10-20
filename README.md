@@ -42,7 +42,7 @@ flowchart LR
 
 1. **Rust generates, the worker accumulates, Angular derives.** `MarketGenerator` returns a batch of `n` market updates
    as one flat `Uint32Array` with stride 7: `[instrument, priceCents, tradeQuantity, bidCents, askCents, bidQuantity,
-askQuantity]`. `MarketProducer` folds every trade into eight numbers per instrument (latest quote, last price,
+askQuantity]`. `MarketProducer` folds every trade into seven numbers per instrument (latest quote, last price,
    volume and `Σ(price × quantity)`) and posts the cumulative stats once per batch. The main thread turns stats into
    metrics in a `computed` signal.
 2. **The UI cost does not depend on the generation rate.** The worker sends at most one message per batch interval
@@ -59,9 +59,10 @@ askQuantity]`. `MarketProducer` folds every trade into eight numbers per instrum
    cache mismatches on GitHub Pages, and the unit tests load the compiled module the same way.
 
 **Cleanup and errors.** A new run frees the previous Wasm generator (`free()`). A generator that cannot be created or a
-batch that fails posts an `error` event; a worker that crashes is terminated and the next **Apply** starts a new one.
-The dashboard shows the failure in an alert and disables Pause. The worker is terminated when the application is
-destroyed.
+batch that fails posts an `error` event with its message. Any failure of the current run — that event or a crashed
+worker — terminates the worker, so a Wasm instance left broken by a trap is never reused; the next **Apply** starts a
+fresh worker. The dashboard shows the failure in an alert and disables Pause. The worker is terminated when the
+application is destroyed.
 
 ## Metrics
 
@@ -75,7 +76,7 @@ destroyed.
 
 Prices stay in integer cents end to end; VWAP keeps fractional cents and rounding happens only when a value is
 displayed (cents are rounded first, then divided by 100). Book quantities never add to the volume. `Σ(price × quantity)`
-stays an exact integer below 2⁵³: with prices capped at $1000 that is at least ~12.5 hours at the maximum rate on a
+stays an exact integer below 2⁵³: with mid prices capped at $1000 that is at least ~12.5 hours at the maximum rate on a
 single instrument; past that point the relative error is far below one cent.
 
 ## Market generator (Rust)
@@ -112,8 +113,8 @@ The worker chunk with the inlined Wasm module is about 34 kB raw (14 kB compress
 
 Component specs drive the DOM through Angular CDK component harnesses. HappyDOM has no `Worker`, so the worker is
 replaced through the `MARKET_WORKER_FACTORY` token, and `MarketProducer` is plain TypeScript tested with fake timers —
-no test waits for real time. `market-generator.wasm.spec.ts` runs the compiled module to guard the stride contract
-between Rust and TypeScript.
+no test waits for real time. `market-generator.wasm.spec.ts` runs the compiled module and checks a fixed-seed batch
+field by field, which guards the layout contract between Rust and TypeScript.
 
 ## Getting started
 
@@ -135,16 +136,16 @@ The development server runs at http://localhost:4200/.
 
 ## Scripts
 
-| Script               | What it does                                            |
-| -------------------- | ------------------------------------------------------- |
-| `npm start`          | Development server with live reload                     |
-| `npm run build`      | Production build into `dist/realtime-fintech-dashboard` |
-| `npm test`           | Unit tests (add `-- --coverage` for a coverage report)  |
-| `npm run lint`       | Worker type check, ESLint, Stylelint and Prettier       |
-| `npm run lint:fix`   | The same checks with automatic fixes                    |
-| `npm run build:wasm` | Build the Rust generator into `wasm/pkg` with wasm-pack |
-| `npm run test:wasm`  | Rust unit tests of the generator                        |
-| `npm run lint:wasm`  | rustfmt and clippy checks                               |
+| Script               | What it does                                                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `npm start`          | Development server with live reload                                                                                         |
+| `npm run build`      | Production build into `dist/realtime-fintech-dashboard`                                                                     |
+| `npm test`           | Unit tests (add `-- --coverage` for a coverage report)                                                                      |
+| `npm run lint`       | Worker type check, ESLint, Stylelint and Prettier                                                                           |
+| `npm run lint:fix`   | ESLint, Stylelint and Prettier with automatic fixes (no worker type check; run `npm run build:wasm` first on a clean clone) |
+| `npm run build:wasm` | Build the Rust generator into `wasm/pkg` with wasm-pack                                                                     |
+| `npm run test:wasm`  | Rust unit tests of the generator                                                                                            |
+| `npm run lint:wasm`  | rustfmt and clippy checks                                                                                                   |
 
 ## Project structure
 
@@ -163,4 +164,6 @@ wasm/                         Rust crate `market-generator`, compiled to WebAsse
 
 GitHub Actions runs on every push: rustfmt, clippy and the Rust tests, then lint, unit tests with coverage thresholds
 and the production build. Every push to `main` (each merged pull request) deploys the build to GitHub Pages with an SPA
-fallback for deep links. `main` is protected: changes arrive through pull requests with a green `build` check.
+fallback for deep links: `404.html` is a copy of `index.html`, so a direct link such as `/settings` opens the right
+page while GitHub Pages answers it with HTTP status 404. `main` is protected: changes arrive through pull requests
+with a green `build` check.

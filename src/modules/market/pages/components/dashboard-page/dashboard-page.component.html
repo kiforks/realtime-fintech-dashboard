@@ -4,9 +4,12 @@
 		<span class="dashboard-page-status" i18n role="status" data-po="dashboard-page-status">
 			{status(), select, running {Running} paused {Paused} failed {Failed}}
 		</span>
+		@let updatesPerSecond = settings() | updatesPerSecond;
 		<span class="dashboard-page-rate" i18n data-po="dashboard-page-rate">
-			{{ settings().instrumentCount }} instruments, {{ settings().updatesPerBatch }} updates every
-			{{ settings().batchIntervalMs }} ms ({{ settings() | updatesPerSecond | number }} updates/s)
+			{settings().instrumentCount, plural, =1 {1 instrument,} other {{{ settings().instrumentCount }} instruments,}}
+			{settings().updatesPerBatch, plural, =1 {1 update} other {{{ settings().updatesPerBatch }} updates}}
+			every {{ settings().batchIntervalMs }} ms
+			{updatesPerSecond, plural, =1 {(1 update/s)} other {({{ updatesPerSecond | number }} updates/s)}}
 		</span>
 		<button
 			class="dashboard-page-toggle"
@@ -25,9 +28,15 @@
 		Market data producer stopped: {{ message }}. Apply settings to restart.
 	</p>
 }
-<div class="dashboard-page-table-container">
+<div
+	class="dashboard-page-table-container"
+	aria-labelledby="dashboard-page-caption"
+	role="region"
+	tabindex="0"
+	data-po="dashboard-page-table"
+>
 	<table class="dashboard-page-table">
-		<caption class="dashboard-page-caption" i18n>
+		<caption id="dashboard-page-caption" class="dashboard-page-caption" i18n>
 			Metrics since the current run started. A dash means the value cannot be calculated yet.
 		</caption>
 		<thead>

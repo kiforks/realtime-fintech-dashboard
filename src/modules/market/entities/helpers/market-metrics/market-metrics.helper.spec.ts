@@ -1,5 +1,6 @@
 import { MarketMetricsHelper } from './market-metrics.helper';
 
+import { ProducerSettingsConfig } from '../../configs';
 import { InstrumentStatsMock, MarketBatchMock, MarketUpdateMock } from '../../mocks';
 
 const workedExampleBatch = MarketBatchMock.encode([
@@ -34,10 +35,11 @@ describe(MarketMetricsHelper, () => {
 			]);
 		});
 
-		it('should give each of the 50 instruments its own symbol', () => {
-			const symbols = new Set(MarketMetricsHelper.empty(50).map(stats => stats.symbol));
+		it('should give every instrument the settings allow its own symbol', () => {
+			const { max } = ProducerSettingsConfig.InstrumentCount;
+			const symbols = new Set(MarketMetricsHelper.empty(max).map(stats => stats.symbol));
 
-			expect(symbols.size).toBe(50);
+			expect(symbols.size).toBe(max);
 		});
 	});
 
@@ -57,11 +59,53 @@ describe(MarketMetricsHelper, () => {
 			]);
 		});
 
-		it('should leave instruments without trades untouched', () => {
-			const [, betaStats] = MarketMetricsHelper.accumulate(MarketMetricsHelper.empty(2), workedExampleBatch);
-			const [, emptyBetaStats] = MarketMetricsHelper.empty(2);
+		it('should keep the totals and quotes of each instrument apart when their trades interleave', () => {
+			const interleavedBatch = MarketBatchMock.encode([
+				new MarketUpdateMock({ askCents: 10000, bidCents: 9996, priceCents: 10000, tradeQuantity: 10 }),
+				new MarketUpdateMock({
+					askCents: 20000,
+					askQuantity: 300,
+					bidCents: 19990,
+					bidQuantity: 100,
+					instrument: 1,
+					priceCents: 20000,
+					tradeQuantity: 5,
+				}),
+				new MarketUpdateMock(),
+			]);
 
-			expect(betaStats).toStrictEqual(emptyBetaStats);
+			expect(MarketMetricsHelper.accumulate(MarketMetricsHelper.empty(3), interleavedBatch)).toStrictEqual([
+				{
+					askCents: 10200,
+					askQuantity: 400,
+					bidCents: 10196,
+					bidQuantity: 600,
+					lastPriceCents: 10200,
+					notionalCents: 406000,
+					symbol: 'ALFA',
+					volume: 40,
+				},
+				{
+					askCents: 20000,
+					askQuantity: 300,
+					bidCents: 19990,
+					bidQuantity: 100,
+					lastPriceCents: 20000,
+					notionalCents: 100000,
+					symbol: 'BETA',
+					volume: 5,
+				},
+				{
+					askCents: null,
+					askQuantity: null,
+					bidCents: null,
+					bidQuantity: null,
+					lastPriceCents: null,
+					notionalCents: 0,
+					symbol: 'GAMA',
+					volume: 0,
+				},
+			]);
 		});
 
 		it('should keep adding to the totals across batches', () => {
@@ -93,6 +137,19 @@ describe(MarketMetricsHelper, () => {
 				volume: 40,
 				vwapCents: 10150,
 			});
+		});
+
+		it('should keep fractional cents in the VWAP for the display to round', () => {
+			expect(MarketMetricsHelper.toMetrics(new InstrumentStatsMock({ notionalCents: 20001, volume: 2 }))).toStrictEqual(
+				{
+					imbalance: 0.2,
+					lastPriceCents: 10200,
+					spreadCents: 4,
+					symbol: 'ALFA',
+					volume: 2,
+					vwapCents: 10000.5,
+				}
+			);
 		});
 
 		it('should report unavailable metrics and zero volume before any data arrives', () => {

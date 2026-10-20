@@ -8,7 +8,7 @@ import kiforTypescript from '@kiforks/eslint-config/typescript.js';
 import kiforVitest from '@kiforks/eslint-config/vitest.js';
 
 const I18N_RULE = '@angular-eslint/template/i18n';
-const NON_TRANSLATABLE_ATTRIBUTES = ['ariaCurrentWhenActive'];
+const NON_TRANSLATABLE_ATTRIBUTES = ['aria-describedby', 'aria-labelledby', 'ariaCurrentWhenActive'];
 
 const withNonTranslatableAttributes = config => {
 	const i18nRule = config.rules?.[I18N_RULE];
