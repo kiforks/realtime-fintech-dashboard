@@ -23,6 +23,13 @@ export class SettingsPageHarness extends ComponentHarness {
 		return input.getProperty<string>('value');
 	}
 
+	public async isFieldInvalid(field: SettingsPageField): Promise<boolean> {
+		const input = await this.locatorFor(`[data-po="settings-page-${field}"]`)();
+		const ariaInvalid = await input.getAttribute('aria-invalid');
+
+		return ariaInvalid === 'true';
+	}
+
 	public async errorText(field: SettingsPageField): Promise<string | null> {
 		const error = await this.locatorForOptional(`[data-po="settings-page-${field}-error"]`)();
 

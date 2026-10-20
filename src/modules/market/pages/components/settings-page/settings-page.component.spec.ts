@@ -39,6 +39,7 @@ describe(SettingsPageComponent, () => {
 
 		expect(worker.postMessage).toHaveBeenCalledTimes(1);
 		expect(await harness.errorText('instrument-count')).toBeNull();
+		expect(await harness.isFieldInvalid('instrument-count')).toBe(false);
 	});
 
 	it.each([
@@ -54,6 +55,7 @@ describe(SettingsPageComponent, () => {
 			await harness.apply();
 
 			expect(await harness.errorText(field)).toBe(error);
+			expect(await harness.isFieldInvalid(field)).toBe(true);
 			expect(worker.postMessage).toHaveBeenCalledTimes(1);
 			expect(navigate).not.toHaveBeenCalled();
 		}
