@@ -96,7 +96,7 @@ describe(SettingsPageComponent, () => {
 		expect(navigate).toHaveBeenCalledWith(['/', 'dashboard']);
 	});
 
-	it('should accept the smallest allowed values', async () => {
+	it('should accept one instrument, one update and the longest interval', async () => {
 		await harness.fill('instrument-count', '1');
 		await harness.fill('updates-per-batch', '1');
 		await harness.fill('batch-interval', '2000');
