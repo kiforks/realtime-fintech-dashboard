@@ -63,7 +63,8 @@
 						},
 						"loader": {
 							".wasm": "binary"
-						}
+						},
+						"webWorkerTsConfig": "tsconfig.worker.json"
 					},
 					"configurations": {
 						"production": {
@@ -110,7 +111,8 @@
 							"src/**/*.harness.ts",
 							"src/**/testing.ts",
 							"src/**/mocks/**",
-							"wasm/**"
+							"wasm/**",
+							"src/**/*.worker.ts"
 						],
 						"coverageThresholds": {
 							"branches": 85,
