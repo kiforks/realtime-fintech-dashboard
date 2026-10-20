@@ -57,9 +57,9 @@
 								"input": "public"
 							}
 						],
-						"styles": ["src/shared/scss/styles.scss"],
+						"styles": ["src/app/scss/styles.scss"],
 						"stylePreprocessorOptions": {
-							"includePaths": ["src/shared/scss"]
+							"includePaths": ["src/app/scss"]
 						},
 						"loader": {
 							".wasm": "binary"
