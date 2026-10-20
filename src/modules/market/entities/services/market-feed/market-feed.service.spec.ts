@@ -136,6 +136,7 @@ describe(MarketFeedService, () => {
 		expect(workerFactory).toHaveBeenCalledTimes(2);
 		expect(replacementWorker.postMessage).toHaveBeenCalledWith({ runId: 2, settings: appliedSettings, type: 'start' });
 		expect(marketFeedService.status()).toBe(ProducerStatus.Running);
+		expect(marketFeedService.errorMessage()).toBeNull();
 	});
 
 	it('should terminate the worker when the application is destroyed', () => {
