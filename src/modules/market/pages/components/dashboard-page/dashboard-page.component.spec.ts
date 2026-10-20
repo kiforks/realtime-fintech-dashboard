@@ -39,10 +39,14 @@ describe(DashboardPageComponent, () => {
 		expect(await harness.rateText).toBe('1 instrument, 1 update every 2000 ms (0.5 updates/s)');
 	});
 
-	it('should format prices as currency and the imbalance as a signed ratio', async () => {
-		worker.emit({ runId: 1, stats: [new InstrumentStatsMock()], type: 'snapshot' });
+	it('should format prices as currency, volume with digit grouping and the imbalance as a signed ratio', async () => {
+		worker.emit({
+			runId: 1,
+			stats: [new InstrumentStatsMock({ notionalCents: 40600000, volume: 4000 })],
+			type: 'snapshot',
+		});
 
-		expect(await harness.rows).toStrictEqual([['ALFA', '$102.00', '$0.04', '40', '$101.50', '+0.20']]);
+		expect(await harness.rows).toStrictEqual([['ALFA', '$102.00', '$0.04', '4,000', '$101.50', '+0.20']]);
 	});
 
 	it('should pause and resume the producer', async () => {
