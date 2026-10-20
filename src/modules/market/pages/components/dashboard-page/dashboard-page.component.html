@@ -5,8 +5,9 @@
 			{status(), select, running {Running} paused {Paused} failed {Failed}}
 		</span>
 		<span class="dashboard-page-rate" i18n data-po="dashboard-page-rate">
-			{{ settings().instrumentCount }} instruments, {{ settings().updatesPerBatch }} updates every
-			{{ settings().batchIntervalMs }} ms ({{ settings() | updatesPerSecond | number }} updates/s)
+			{settings().instrumentCount, plural, =1 {1 instrument,} other {{{ settings().instrumentCount }} instruments,}}
+			{settings().updatesPerBatch, plural, =1 {1 update} other {{{ settings().updatesPerBatch }} updates}}
+			every {{ settings().batchIntervalMs }} ms ({{ settings() | updatesPerSecond | number }} updates/s)
 		</span>
 		<button
 			class="dashboard-page-toggle"

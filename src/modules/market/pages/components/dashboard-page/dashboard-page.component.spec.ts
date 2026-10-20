@@ -4,7 +4,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { DashboardPageComponent } from './dashboard-page.component';
 import { DashboardPageHarness } from './dashboard-page.component.harness';
 
-import { MARKET_WORKER_FACTORY } from '~modules/market/entities';
+import { MARKET_WORKER_FACTORY, MarketFeedService } from '~modules/market/entities';
 import { InstrumentStatsMock, MarketWorkerMock } from '~modules/market/entities/testing';
 
 const unavailableRow = (symbol: string): string[] => [symbol, '—', '—', '0', '—', '—'];
@@ -31,6 +31,12 @@ describe(DashboardPageComponent, () => {
 		expect(await harness.rateText).toBe('5 instruments, 100 updates every 500 ms (200 updates/s)');
 		expect(await harness.rows).toStrictEqual(['ALFA', 'BETA', 'GAMA', 'DELT', 'EPSI'].map(unavailableRow));
 		expect(await harness.errorText).toBeNull();
+	});
+
+	it('should describe a single instrument and a single update in the singular', async () => {
+		TestBed.inject(MarketFeedService).apply({ batchIntervalMs: 2000, instrumentCount: 1, updatesPerBatch: 1 });
+
+		expect(await harness.rateText).toBe('1 instrument, 1 update every 2000 ms (0.5 updates/s)');
 	});
 
 	it('should format prices as currency and the imbalance as a signed ratio', async () => {
