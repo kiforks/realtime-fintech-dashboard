@@ -55,6 +55,12 @@ export default [
 	...kiforAngularTemplate.map(withNonTranslatableAttributes),
 	...kiforVitest,
 	...kiforTests,
+	{
+		files: ['**/*.spec.ts'],
+		rules: {
+			'vitest/prefer-expect-resolves': 'off',
+		},
+	},
 	...kiforFsd,
 	{
 		ignores: [
