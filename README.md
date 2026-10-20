@@ -149,16 +149,32 @@ The development server runs at http://localhost:4200/.
 
 ## Project structure
 
+The application follows [Feature-Sliced Design](https://feature-sliced.design/) 2.1: four layers, and a module may
+import only from layers below its own.
+
 ```
 src/
-  app/                        bootstrap: main.ts, app.config.ts, index.html
-  pages/                      root shell (navigation + router outlet) and routes
-  modules/market/
-    entities/                 market domain: models, configs, helpers, pipes, feed service, worker
-    pages/                    dashboard and settings pages
-  shared/                     formatting pipes, number formats, global styles and theme tokens
+  app/                        bootstrap (main.ts, app.config.ts, index.html), root shell, routes, global styles and theme
+  pages/
+    dashboard/                dashboard page and its updates-per-second pipe
+    settings/                 settings page, its form draft model and the draft-to-settings helper
+  entities/
+    market/                   market domain: models, configs, metrics helper, feed service, worker factory, worker
+  shared/                     formatting pipes, number formats, route paths
 wasm/                         Rust crate `market-generator`, compiled to WebAssembly
 ```
+
+- **Pages first.** Code that only one page needs lives in that page's slice. There are no `features` or `widgets`
+  layers, because no user action or block appears on more than one page. The market entity holds what both pages and
+  the app need: the feed service and the domain model behind it.
+- **One entity.** Instrument stats, producer settings and the worker protocol describe one feed, and they reference
+  each other, so they stay in one slice instead of being split and joined with cross-imports.
+- **Public API.** A slice is imported only through its `index.ts`; specs use its `testing.ts` (mocks and component
+  harnesses). Inside a slice, imports are relative; between slices, through the `~/` alias. Inside a slice, code is
+  grouped by kind (`components/`, `services/`, `models/`, …) rather than by the standard FSD segment names.
+- **Enforced by ESLint.** `@kiforks/eslint-config/feature-sliced-design.js` checks the direction between layers;
+  `eslint.config.js` adds three more checks: no import past a slice's or a shared segment's public API, no import of one
+  page from another, and no import of one entity from another.
 
 ## Delivery
 
