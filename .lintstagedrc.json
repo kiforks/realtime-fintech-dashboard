@@ -1,6 +1,6 @@
 {
-	"*.{ts,js,html}": ["eslint"],
+	"*.{ts,js,mjs,html}": ["eslint"],
 	"*.scss": ["stylelint"],
-	"*.{ts,js,html,scss,json,md,yml}": ["prettier --check"],
+	"*.{ts,js,mjs,html,scss,json,md,yml}": ["prettier --check"],
 	"*.rs": ["node scripts/with-rust.mjs rustfmt --check --edition 2024"]
 }
