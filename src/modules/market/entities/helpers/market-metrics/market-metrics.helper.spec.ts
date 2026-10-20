@@ -1,5 +1,6 @@
 import { MarketMetricsHelper } from './market-metrics.helper';
 
+import { ProducerSettingsConfig } from '../../configs';
 import { InstrumentStatsMock, MarketBatchMock, MarketUpdateMock } from '../../mocks';
 
 const workedExampleBatch = MarketBatchMock.encode([
@@ -34,10 +35,11 @@ describe(MarketMetricsHelper, () => {
 			]);
 		});
 
-		it('should give each of the 50 instruments its own symbol', () => {
-			const symbols = new Set(MarketMetricsHelper.empty(50).map(stats => stats.symbol));
+		it('should give every instrument the settings allow its own symbol', () => {
+			const { max } = ProducerSettingsConfig.InstrumentCount;
+			const symbols = new Set(MarketMetricsHelper.empty(max).map(stats => stats.symbol));
 
-			expect(symbols.size).toBe(50);
+			expect(symbols.size).toBe(max);
 		});
 	});
 

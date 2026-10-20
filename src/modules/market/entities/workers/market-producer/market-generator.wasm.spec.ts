@@ -1,13 +1,13 @@
 import { MarketUpdate } from '../../models';
 
-import { MarketUpdateLayoutConfig } from '../../configs';
+import { MarketUpdateLayoutConfig, ProducerSettingsConfig } from '../../configs';
 import { MarketBatchMock } from '../../mocks';
 
 import { initSync, MarketGenerator } from '~wasm/market_generator';
 import marketGeneratorBytes from '~wasm/market_generator_bg.wasm';
 
 const SEED = 42;
-const INSTRUMENT_COUNT = 50;
+const INSTRUMENT_COUNT = ProducerSettingsConfig.InstrumentCount.max;
 const MAX_TRADE_QUANTITY = 100;
 
 const breaksAnInvariant = (update: MarketUpdate): boolean => {
