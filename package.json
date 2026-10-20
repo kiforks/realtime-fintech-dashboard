@@ -8,6 +8,7 @@
 		"node": "^24.15.0"
 	},
 	"scripts": {
+		"prepare": "husky",
 		"start": "ng serve",
 		"build": "ng build",
 		"test": "ng test --no-watch",
