@@ -17,3 +17,7 @@ package-lock.json
 
 # Angular index page: its root element must stay an explicit open/close pair
 src/app/index.html
+
+# Rust and wasm-pack output
+/wasm/pkg
+/wasm/target

@@ -65,6 +65,7 @@ export default [
 	{
 		ignores: [
 			'src/app/index.html',
+			'wasm/',
 			'dist/',
 			'out-tsc/',
 			'coverage/',

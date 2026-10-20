@@ -18,7 +18,8 @@
 		"paths": {
 			"~modules/*": ["./src/modules/*"],
 			"~pages": ["./src/pages/index.ts"],
-			"~shared/*": ["./src/shared/*"]
+			"~shared/*": ["./src/shared/*"],
+			"~wasm/*": ["./wasm/pkg/*"]
 		}
 	},
 	"angularCompilerOptions": {

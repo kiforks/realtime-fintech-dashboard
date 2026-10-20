@@ -1,5 +1,6 @@
 {
 	"*.{ts,js,html}": ["eslint"],
 	"*.scss": ["stylelint"],
-	"*.{ts,js,html,scss,json,md,yml}": ["prettier --check"]
+	"*.{ts,js,html,scss,json,md,yml}": ["prettier --check"],
+	"*.rs": ["rustfmt --check --edition 2024"]
 }
