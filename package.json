@@ -10,7 +10,9 @@
 	"scripts": {
 		"start": "ng serve",
 		"build": "ng build",
-		"test": "ng test --no-watch"
+		"test": "ng test --no-watch",
+		"lint": "eslint . && stylelint \"src/**/*.scss\" && prettier --check .",
+		"lint:fix": "eslint . --fix && stylelint \"src/**/*.scss\" --fix && prettier --write ."
 	},
 	"dependencies": {
 		"@angular/common": "22.2.3",
