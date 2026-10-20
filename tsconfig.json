@@ -18,7 +18,6 @@
 		"paths": {
 			"~/*": ["./src/*"],
 			"~modules/*": ["./src/modules/*"],
-			"~pages": ["./src/pages/index.ts"],
 			"~shared/*": ["./src/shared/*"],
 			"~wasm/*": ["./wasm/pkg/*"]
 		}

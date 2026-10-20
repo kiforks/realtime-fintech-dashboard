@@ -6,7 +6,7 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { RootComponent } from './root.component';
 import { RootHarness } from './root.component.harness';
 import { DashboardPageHarness, SettingsPageHarness } from '~modules/market/pages/testing';
-import { ROOT_ROUTES } from '../../root.routes';
+import { ROOT_ROUTES } from '../../routes';
 
 import { MARKET_WORKER_FACTORY, MarketWorker, ProducerSettingsConfig } from '~/entities/market';
 import { MarketWorkerMock } from '~/entities/market/testing';
