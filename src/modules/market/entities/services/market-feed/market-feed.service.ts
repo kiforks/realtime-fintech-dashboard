@@ -100,12 +100,12 @@ export class MarketFeedService {
 
 	private _crash(event: ErrorEvent): void {
 		event.preventDefault();
-		this._worker?.terminate();
-		this._worker = null;
 		this._fail($localize`The market data worker stopped unexpectedly`);
 	}
 
 	private _fail(message: string): void {
+		this._worker?.terminate();
+		this._worker = null;
 		this._errorMessage.set(message);
 		this._status.set(ProducerStatus.Failed);
 	}

@@ -59,9 +59,10 @@ askQuantity]`. `MarketProducer` folds every trade into eight numbers per instrum
    cache mismatches on GitHub Pages, and the unit tests load the compiled module the same way.
 
 **Cleanup and errors.** A new run frees the previous Wasm generator (`free()`). A generator that cannot be created or a
-batch that fails posts an `error` event; a worker that crashes is terminated and the next **Apply** starts a new one.
-The dashboard shows the failure in an alert and disables Pause. The worker is terminated when the application is
-destroyed.
+batch that fails posts an `error` event with its message. Any failure of the current run — that event or a crashed
+worker — terminates the worker, so a Wasm instance left broken by a trap is never reused; the next **Apply** starts a
+fresh worker. The dashboard shows the failure in an alert and disables Pause. The worker is terminated when the
+application is destroyed.
 
 ## Metrics
 
