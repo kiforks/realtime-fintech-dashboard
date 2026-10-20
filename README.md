@@ -1,59 +1,46 @@
-# RealtimeFintechDashboard
+# Realtime Fintech Dashboard
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.3.
+A small Angular application with a live market dashboard and data-producer settings. Simulated market updates come
+from a WebAssembly library written in Rust that runs inside a Web Worker.
 
-## Development server
+**Live demo:** https://kiforks.github.io/realtime-fintech-dashboard/
 
-To start a local development server, run:
+> Work in progress. The sections below grow with each delivery stage.
 
-```bash
-ng serve
-```
+## Tech stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Angular 22 (zoneless, signals, standalone components), TypeScript 6
+- Vitest 5 through the Angular CLI unit-test builder, Angular CDK component harnesses
+- ESLint, Prettier and Stylelint with the `@kiforks/*` shared configs, husky and lint-staged
+- GitHub Actions: every push runs lint, tests and a production build; every push to `main` deploys to GitHub Pages
 
-## Code scaffolding
+## Getting started
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Requirements: Node.js 24 (see `.nvmrc`) and npm.
 
 ```bash
-ng generate --help
+npm ci
+npm start
 ```
 
-## Building
+The development server runs at http://localhost:4200/.
 
-To build the project run:
+## Scripts
 
-```bash
-ng build
+| Script             | What it does                                            |
+| ------------------ | ------------------------------------------------------- |
+| `npm start`        | Development server with live reload                     |
+| `npm run build`    | Production build into `dist/realtime-fintech-dashboard` |
+| `npm test`         | Unit tests (add `-- --coverage` for a coverage report)  |
+| `npm run lint`     | ESLint, Stylelint and Prettier checks                   |
+| `npm run lint:fix` | The same checks with automatic fixes                    |
+
+## Project structure
+
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
+src/
+  app/        bootstrap: main.ts, app.config.ts, index.html
+  pages/      root shell (navigation + router outlet) and routes
+  modules/    feature modules, e.g. market/pages
+  shared/     cross-cutting code: global styles and theme tokens
 ```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

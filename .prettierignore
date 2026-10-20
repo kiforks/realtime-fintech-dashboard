@@ -1,0 +1,19 @@
+# Compiled output
+/dist
+/out-tsc
+/coverage
+/.angular
+
+# Dependencies
+/node_modules
+package-lock.json
+
+# IDEs and editors
+.idea/
+.vscode/
+
+# System files
+.DS_Store
+
+# Angular index page: its root element must stay an explicit open/close pair
+src/app/index.html
