@@ -113,8 +113,8 @@ The worker chunk with the inlined Wasm module is about 34 kB raw (14 kB compress
 
 Component specs drive the DOM through Angular CDK component harnesses. HappyDOM has no `Worker`, so the worker is
 replaced through the `MARKET_WORKER_FACTORY` token, and `MarketProducer` is plain TypeScript tested with fake timers —
-no test waits for real time. `market-generator.wasm.spec.ts` runs the compiled module to guard the stride contract
-between Rust and TypeScript.
+no test waits for real time. `market-generator.wasm.spec.ts` runs the compiled module and checks a fixed-seed batch
+field by field, which guards the layout contract between Rust and TypeScript.
 
 ## Getting started
 

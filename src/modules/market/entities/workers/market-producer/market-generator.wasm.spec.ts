@@ -47,14 +47,27 @@ describe(MarketGenerator, () => {
 		expect(violations).toStrictEqual([]);
 	});
 
-	it('should repeat the same batch for the same seed', () => {
-		const twin = new MarketGenerator(INSTRUMENT_COUNT, SEED);
-		const batch = generator.nextBatch(100);
-		const twinBatch = twin.nextBatch(100);
-
-		twin.free();
-
-		expect(batch).toStrictEqual(twinBatch);
+	it('should produce the known first updates of a fixed seed in the agreed field layout', () => {
+		expect(MarketBatchMock.decode(generator.nextBatch(2))).toStrictEqual([
+			{
+				askCents: 29339,
+				askQuantity: 599,
+				bidCents: 29330,
+				bidQuantity: 537,
+				instrument: 10,
+				priceCents: 29330,
+				tradeQuantity: 86,
+			},
+			{
+				askCents: 35431,
+				askQuantity: 821,
+				bidCents: 35411,
+				bidQuantity: 1008,
+				instrument: 30,
+				priceCents: 35431,
+				tradeQuantity: 80,
+			},
+		]);
 	});
 
 	it('should reject an instrument count outside the allowed range', () => {
