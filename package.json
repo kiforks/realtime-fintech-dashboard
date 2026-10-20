@@ -18,7 +18,7 @@
 		"test": "ng test --no-watch",
 		"test:wasm": "cargo test --manifest-path wasm/Cargo.toml",
 		"prelint": "npm run build:wasm",
-		"lint": "eslint . && stylelint \"src/**/*.scss\" && prettier --check .",
+		"lint": "tsc -p tsconfig.worker.json --noEmit && eslint . && stylelint \"src/**/*.scss\" && prettier --check .",
 		"lint:fix": "eslint . --fix && stylelint \"src/**/*.scss\" --fix && prettier --write .",
 		"lint:wasm": "cargo fmt --manifest-path wasm/Cargo.toml --check && cargo clippy --manifest-path wasm/Cargo.toml --all-targets -- -D warnings"
 	},
