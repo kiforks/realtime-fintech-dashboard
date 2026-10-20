@@ -4,7 +4,7 @@ import { MARKET_WORKER_FACTORY } from './market-worker-factory.token';
 
 import type { Mock } from 'vitest';
 
-describe('mARKET_WORKER_FACTORY', () => {
+describe('market worker factory', () => {
 	let workerConstructor: Mock<(scriptUrl: URL, options: WorkerOptions) => void>;
 
 	beforeEach(() => {
