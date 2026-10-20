@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import { MarketRouteConfig } from '~modules/market/pages';
+import { AppRouteConfig } from '~/shared/configs';
 
 @Component({
 	selector: 'app-root',
@@ -11,5 +11,5 @@ import { MarketRouteConfig } from '~modules/market/pages';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RootComponent {
-	protected readonly routes = MarketRouteConfig;
+	protected readonly routes = AppRouteConfig;
 }
