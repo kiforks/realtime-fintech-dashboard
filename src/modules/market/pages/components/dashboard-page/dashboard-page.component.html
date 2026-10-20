@@ -1,1 +1,56 @@
-<h1 class="dashboard-page-title" i18n data-po="dashboard-page-title">Market dashboard</h1>
+<header class="dashboard-page-header">
+	<h1 class="dashboard-page-title" i18n data-po="dashboard-page-title">Market dashboard</h1>
+	<div class="dashboard-page-producer">
+		<span class="dashboard-page-status" i18n role="status" data-po="dashboard-page-status">
+			{status(), select, running {Running} paused {Paused} failed {Failed}}
+		</span>
+		<span class="dashboard-page-rate" i18n data-po="dashboard-page-rate">
+			{{ settings().instrumentCount }} instruments, {{ settings().updatesPerBatch }} updates every
+			{{ settings().batchIntervalMs }} ms ({{ settings() | updatesPerSecond | number }} updates/s)
+		</span>
+		<button
+			class="dashboard-page-toggle"
+			i18n
+			type="button"
+			[disabled]="isFailed()"
+			(click)="togglePause()"
+			data-po="dashboard-page-toggle"
+		>
+			{isPaused(), select, true {Resume} other {Pause}}
+		</button>
+	</div>
+</header>
+@if (errorMessage(); as message) {
+	<p class="dashboard-page-error" i18n role="alert" data-po="dashboard-page-error">
+		Market data producer stopped: {{ message }}. Apply settings to restart.
+	</p>
+}
+<div class="dashboard-page-table-container">
+	<table class="dashboard-page-table">
+		<caption class="dashboard-page-caption" i18n>
+			Metrics since the current run started. A dash means the value cannot be calculated yet.
+		</caption>
+		<thead>
+			<tr>
+				<th class="dashboard-page-symbol" i18n>Instrument</th>
+				<th i18n>Last price</th>
+				<th i18n>Spread</th>
+				<th i18n>Volume</th>
+				<th i18n>VWAP</th>
+				<th i18n>Imbalance</th>
+			</tr>
+		</thead>
+		<tbody>
+			@for (row of rows(); track row.symbol) {
+				<tr data-po="dashboard-page-row">
+					<th class="dashboard-page-symbol">{{ row.symbol }}</th>
+					<td>{{ row.lastPriceCents | cents }}</td>
+					<td>{{ row.spreadCents | cents }}</td>
+					<td>{{ row.volume | number }}</td>
+					<td>{{ row.vwapCents | cents }}</td>
+					<td>{{ row.imbalance | signedRatio }}</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+</div>
