@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
-import { DashboardPageComponent, SettingsPageComponent } from '~modules/market/pages';
+import { DashboardPageComponent } from '~/pages/dashboard';
+import { SettingsPageComponent } from '~/pages/settings';
 
 import { AppRouteConfig } from '~/shared/configs';
 

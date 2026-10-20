@@ -17,7 +17,6 @@
 		"module": "preserve",
 		"paths": {
 			"~/*": ["./src/*"],
-			"~modules/*": ["./src/modules/*"],
 			"~shared/*": ["./src/shared/*"],
 			"~wasm/*": ["./wasm/pkg/*"]
 		}
