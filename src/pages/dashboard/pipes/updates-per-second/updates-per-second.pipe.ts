@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-import { ProducerSettings } from '../../models';
+import { ProducerSettings } from '~/entities/market';
 
 const MS_PER_SECOND = 1000;
 

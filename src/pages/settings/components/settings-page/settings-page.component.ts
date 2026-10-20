@@ -2,13 +2,10 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router } from '@angular/router';
 import { form, FormField, FormRoot, max, min, required, SchemaPath, validate } from '@angular/forms/signals';
 
-import {
-	IntegerRange,
-	MarketFeedService,
-	ProducerSettingsConfig,
-	ProducerSettingsDraft,
-	ProducerSettingsHelper,
-} from '~/entities/market';
+import { ProducerSettingsHelper } from '../../helpers';
+import { ProducerSettingsDraft } from '../../models';
+
+import { IntegerRange, MarketFeedService, ProducerSettingsConfig } from '~/entities/market';
 import { AppRouteConfig } from '~/shared/configs';
 
 const requireIntegerInRange = (

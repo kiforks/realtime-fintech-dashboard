@@ -1,15 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, Signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 
+import { UpdatesPerSecondPipe } from '../../pipes';
 import { CentsPipe, SignedRatioPipe } from '~shared/pipes';
 
-import {
-	InstrumentMetrics,
-	MarketFeedService,
-	ProducerSettings,
-	ProducerStatus,
-	UpdatesPerSecondPipe,
-} from '~/entities/market';
+import { InstrumentMetrics, MarketFeedService, ProducerSettings, ProducerStatus } from '~/entities/market';
 
 @Component({
 	selector: 'app-dashboard-page',

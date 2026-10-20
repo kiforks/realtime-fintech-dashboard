@@ -1,4 +1,6 @@
-import { ProducerSettings, ProducerSettingsDraft } from '../../models';
+import { ProducerSettingsDraft } from '../../models';
+
+import { ProducerSettings } from '~/entities/market';
 
 export abstract class ProducerSettingsHelper {
 	public static fromDraft({
