@@ -1,7 +1,7 @@
 import { MarketUpdate } from '../../models';
 
 import { MarketUpdateLayoutConfig, ProducerSettingsConfig } from '../../configs';
-import { MarketBatchMock } from '../../mocks';
+import { MarketBatchMock, MarketUpdateMock } from '../../mocks';
 
 import { initSync, MarketGenerator } from '~wasm/market_generator';
 import marketGeneratorBytes from '~wasm/market_generator_bg.wasm';
@@ -48,26 +48,28 @@ describe(MarketGenerator, () => {
 	});
 
 	it('should produce the known first updates of a fixed seed in the agreed field layout', () => {
-		expect(MarketBatchMock.decode(generator.nextBatch(2))).toStrictEqual([
-			{
-				askCents: 29339,
-				askQuantity: 599,
-				bidCents: 29330,
-				bidQuantity: 537,
-				instrument: 10,
-				priceCents: 29330,
-				tradeQuantity: 86,
-			},
-			{
-				askCents: 35431,
-				askQuantity: 821,
-				bidCents: 35411,
-				bidQuantity: 1008,
-				instrument: 30,
-				priceCents: 35431,
-				tradeQuantity: 80,
-			},
-		]);
+		expect(generator.nextBatch(2)).toStrictEqual(
+			MarketBatchMock.encode([
+				new MarketUpdateMock({
+					askCents: 29339,
+					askQuantity: 599,
+					bidCents: 29330,
+					bidQuantity: 537,
+					instrument: 10,
+					priceCents: 29330,
+					tradeQuantity: 86,
+				}),
+				new MarketUpdateMock({
+					askCents: 35431,
+					askQuantity: 821,
+					bidCents: 35411,
+					bidQuantity: 1008,
+					instrument: 30,
+					priceCents: 35431,
+					tradeQuantity: 80,
+				}),
+			])
+		);
 	});
 
 	it('should reject an instrument count outside the allowed range', () => {
