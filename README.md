@@ -16,7 +16,14 @@ from a WebAssembly library written in Rust that runs inside a Web Worker.
 
 ## Getting started
 
-Requirements: Node.js 24 (see `.nvmrc`) and npm.
+Requirements:
+
+- Node.js 24 (see `.nvmrc`) and npm
+- Rust through [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.99.1 with the `wasm32-unknown-unknown`
+  target, clippy and rustfmt, so rustup installs the right toolchain on first use. With Homebrew, `rustup` is keg-only:
+  add `$(brew --prefix rustup)/bin` to `PATH`.
+
+`wasm-pack` comes from npm. `npm start`, `npm run build`, `npm test` and `npm run lint` rebuild the Wasm package first.
 
 ```bash
 npm ci
@@ -27,13 +34,16 @@ The development server runs at http://localhost:4200/.
 
 ## Scripts
 
-| Script             | What it does                                            |
-| ------------------ | ------------------------------------------------------- |
-| `npm start`        | Development server with live reload                     |
-| `npm run build`    | Production build into `dist/realtime-fintech-dashboard` |
-| `npm test`         | Unit tests (add `-- --coverage` for a coverage report)  |
-| `npm run lint`     | ESLint, Stylelint and Prettier checks                   |
-| `npm run lint:fix` | The same checks with automatic fixes                    |
+| Script               | What it does                                            |
+| -------------------- | ------------------------------------------------------- |
+| `npm start`          | Development server with live reload                     |
+| `npm run build`      | Production build into `dist/realtime-fintech-dashboard` |
+| `npm test`           | Unit tests (add `-- --coverage` for a coverage report)  |
+| `npm run lint`       | ESLint, Stylelint and Prettier checks                   |
+| `npm run lint:fix`   | The same checks with automatic fixes                    |
+| `npm run build:wasm` | Build the Rust generator into `wasm/pkg` with wasm-pack |
+| `npm run test:wasm`  | Rust unit tests of the generator                        |
+| `npm run lint:wasm`  | rustfmt and clippy checks                               |
 
 ## Project structure
 
@@ -43,4 +53,5 @@ src/
   pages/      root shell (navigation + router outlet) and routes
   modules/    feature modules, e.g. market/pages
   shared/     cross-cutting code: global styles and theme tokens
+wasm/         Rust crate `market-generator`, compiled to WebAssembly
 ```

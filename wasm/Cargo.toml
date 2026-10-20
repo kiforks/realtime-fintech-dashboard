@@ -1,0 +1,17 @@
+[package]
+name = "market-generator"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "=0.2.129"
+rand_core = { version = "0.10", default-features = false }
+rand_pcg = { version = "0.10", default-features = false }
+
+[profile.release]
+opt-level = "s"
+lto = true

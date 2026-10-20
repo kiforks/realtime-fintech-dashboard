@@ -20,12 +20,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Install the Rust toolchain pinned in rust-toolchain.toml
+        run: rustup toolchain install
+
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
 
       - run: npm ci
+
+      - run: npm run lint:wasm
+
+      - run: npm run test:wasm
 
       - run: npm run lint
 

@@ -60,6 +60,9 @@
 						"styles": ["src/shared/scss/styles.scss"],
 						"stylePreprocessorOptions": {
 							"includePaths": ["src/shared/scss"]
+						},
+						"loader": {
+							".wasm": "binary"
 						}
 					},
 					"configurations": {
@@ -102,7 +105,13 @@
 				"test": {
 					"builder": "@angular/build:unit-test",
 					"options": {
-						"coverageExclude": ["src/app/main.ts", "src/**/*.harness.ts", "src/**/testing.ts"],
+						"coverageExclude": [
+							"src/app/main.ts",
+							"src/**/*.harness.ts",
+							"src/**/testing.ts",
+							"src/**/mocks/**",
+							"wasm/**"
+						],
 						"coverageThresholds": {
 							"branches": 85,
 							"functions": 95,
