@@ -31,7 +31,11 @@ export class SettingsPageHarness extends ComponentHarness {
 	}
 
 	public async errorText(field: SettingsPageField): Promise<string | null> {
-		const error = await this.locatorForOptional(`[data-po="settings-page-${field}-error"]`)();
+		const input = await this.locatorFor(`[data-po="settings-page-${field}"]`)();
+		const describedBy = await input.getAttribute('aria-describedby');
+		const error = await this.locatorForOptional(
+			`[data-po="settings-page-${field}-error"][id="${describedBy ?? ''}"][role="alert"]`
+		)();
 
 		return error === null ? null : error.text();
 	}
