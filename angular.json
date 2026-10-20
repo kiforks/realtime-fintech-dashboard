@@ -46,10 +46,9 @@
 				"build": {
 					"builder": "@angular/build:application",
 					"options": {
-						"browser": "src/main.ts",
-						"polyfills": [
-							"@angular/localize/init"
-						],
+						"browser": "src/app/main.ts",
+						"index": "src/app/index.html",
+						"polyfills": ["@angular/localize/init"],
 						"tsConfig": "tsconfig.app.json",
 						"inlineStyleLanguage": "scss",
 						"assets": [
@@ -58,9 +57,10 @@
 								"input": "public"
 							}
 						],
-						"styles": [
-							"src/styles.scss"
-						]
+						"styles": ["src/shared/scss/styles.scss"],
+						"stylePreprocessorOptions": {
+							"includePaths": ["src/shared/scss"]
+						}
 					},
 					"configurations": {
 						"production": {
@@ -102,11 +102,7 @@
 				"test": {
 					"builder": "@angular/build:unit-test",
 					"options": {
-						"coverageExclude": [
-							"src/app/main.ts",
-							"src/**/*.harness.ts",
-							"src/**/testing.ts"
-						],
+						"coverageExclude": ["src/app/main.ts", "src/**/*.harness.ts", "src/**/testing.ts"],
 						"coverageThresholds": {
 							"branches": 85,
 							"functions": 95,
