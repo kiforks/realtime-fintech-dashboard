@@ -1,4 +1,60 @@
 .settings-page-title {
-	margin: 0;
+	margin: 0 0 var(--space-4);
 	font-size: var(--font-size-title);
+}
+
+.settings-page-form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	max-width: 360px;
+	padding: var(--space-6);
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+}
+
+.settings-page-field {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	margin-top: var(--space-2);
+}
+
+.settings-page-label {
+	font-size: var(--font-size-small);
+	color: var(--color-text-muted);
+}
+
+.settings-page-input {
+	padding: var(--space-2);
+	font: inherit;
+	color: var(--color-text);
+	background: var(--color-background);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius);
+}
+
+.settings-page-error {
+	margin: 0;
+	font-size: var(--font-size-small);
+	color: var(--color-danger);
+}
+
+.settings-page-hint {
+	margin: var(--space-2) 0 0;
+	font-size: var(--font-size-small);
+	color: var(--color-text-muted);
+}
+
+.settings-page-apply {
+	align-self: flex-start;
+	padding: var(--space-2) var(--space-6);
+	font: inherit;
+	font-weight: 600;
+	color: var(--color-surface);
+	background: var(--color-accent);
+	border: 1px solid var(--color-accent);
+	border-radius: var(--radius);
+	cursor: pointer;
 }
