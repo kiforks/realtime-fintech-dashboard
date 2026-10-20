@@ -10,7 +10,7 @@ import {
 	ProducerSettingsConfig,
 	ProducerSettingsDraft,
 	ProducerSettingsHelper,
-} from '~modules/market/entities';
+} from '~/entities/market';
 
 const requireIntegerInRange = (
 	path: SchemaPath<number | null>,

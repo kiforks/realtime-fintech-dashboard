@@ -5,8 +5,8 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { SettingsPageComponent } from './settings-page.component';
 import { SettingsPageHarness } from './settings-page.component.harness';
 
-import { MARKET_WORKER_FACTORY, MarketFeedService } from '~modules/market/entities';
-import { MarketWorkerMock } from '~modules/market/entities/testing';
+import { MARKET_WORKER_FACTORY, MarketFeedService } from '~/entities/market';
+import { MarketWorkerMock } from '~/entities/market/testing';
 import type { MockInstance } from 'vitest';
 
 describe(SettingsPageComponent, () => {

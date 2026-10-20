@@ -4,8 +4,8 @@ import { TestbedHarnessEnvironment } from '@angular/cdk/testing/testbed';
 import { DashboardPageComponent } from './dashboard-page.component';
 import { DashboardPageHarness } from './dashboard-page.component.harness';
 
-import { MARKET_WORKER_FACTORY, MarketFeedService } from '~modules/market/entities';
-import { InstrumentStatsMock, MarketWorkerMock } from '~modules/market/entities/testing';
+import { MARKET_WORKER_FACTORY, MarketFeedService } from '~/entities/market';
+import { InstrumentStatsMock, MarketWorkerMock } from '~/entities/market/testing';
 
 const unavailableRow = (symbol: string): string[] => [symbol, '—', '—', '0', '—', '—'];
 

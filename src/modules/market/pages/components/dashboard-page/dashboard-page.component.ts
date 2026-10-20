@@ -9,7 +9,7 @@ import {
 	ProducerSettings,
 	ProducerStatus,
 	UpdatesPerSecondPipe,
-} from '~modules/market/entities';
+} from '~/entities/market';
 
 @Component({
 	selector: 'app-dashboard-page',

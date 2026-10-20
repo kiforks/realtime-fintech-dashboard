@@ -8,8 +8,8 @@ import { RootHarness } from './root.component.harness';
 import { DashboardPageHarness, SettingsPageHarness } from '~modules/market/pages/testing';
 import { ROOT_ROUTES } from '../../root.routes';
 
-import { MARKET_WORKER_FACTORY, MarketWorker, ProducerSettingsConfig } from '~modules/market/entities';
-import { MarketWorkerMock } from '~modules/market/entities/testing';
+import { MARKET_WORKER_FACTORY, MarketWorker, ProducerSettingsConfig } from '~/entities/market';
+import { MarketWorkerMock } from '~/entities/market/testing';
 import type { Mock } from 'vitest';
 
 describe(RootComponent, () => {
