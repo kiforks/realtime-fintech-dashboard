@@ -42,3 +42,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Rust and wasm-pack output
+/wasm/pkg
+/wasm/target
