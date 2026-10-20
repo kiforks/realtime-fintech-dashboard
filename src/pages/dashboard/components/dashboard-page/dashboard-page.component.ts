@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, Signal } from '@a
 import { DecimalPipe } from '@angular/common';
 
 import { UpdatesPerSecondPipe } from '../../pipes';
-import { CentsPipe, SignedRatioPipe } from '~shared/pipes';
+import { CentsPipe, SignedRatioPipe } from '~/shared/pipes';
 
 import { InstrumentMetrics, MarketFeedService, ProducerSettings, ProducerStatus } from '~/entities/market';
 
