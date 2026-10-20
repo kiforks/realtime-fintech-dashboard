@@ -8,21 +8,23 @@ import { RootHarness } from './root.component.harness';
 import { DashboardPageHarness, SettingsPageHarness } from '~modules/market/pages/testing';
 import { ROOT_ROUTES } from '../../root.routes';
 
-import { MARKET_WORKER_FACTORY } from '~modules/market/entities';
+import { MARKET_WORKER_FACTORY, MarketWorker, ProducerSettingsConfig } from '~modules/market/entities';
 import { MarketWorkerMock } from '~modules/market/entities/testing';
+import type { Mock } from 'vitest';
 
 describe(RootComponent, () => {
 	let fixture: ComponentFixture<RootComponent>;
 	let harness: RootHarness;
 	let loader: HarnessLoader;
+	let worker: MarketWorkerMock;
+	let workerFactory: Mock<() => MarketWorker>;
 
 	beforeEach(async () => {
+		worker = new MarketWorkerMock();
+		workerFactory = vi.fn<() => MarketWorker>(() => worker);
 		await TestBed.configureTestingModule({
 			imports: [RootComponent],
-			providers: [
-				provideRouter(ROOT_ROUTES),
-				{ provide: MARKET_WORKER_FACTORY, useValue: () => new MarketWorkerMock() },
-			],
+			providers: [provideRouter(ROOT_ROUTES), { provide: MARKET_WORKER_FACTORY, useValue: workerFactory }],
 		}).compileComponents();
 		fixture = TestBed.createComponent(RootComponent);
 		await TestBed.inject(Router).navigateByUrl('/');
@@ -44,14 +46,24 @@ describe(RootComponent, () => {
 		expect(await settingsPage.titleText).toBe('Producer settings');
 	});
 
-	it('should return to the dashboard from the settings page', async () => {
+	it('should keep the paused run and a single producer while navigating between pages', async () => {
+		const dashboardPage = await loader.getHarness(DashboardPageHarness);
+
+		await dashboardPage.togglePause();
 		await harness.openSettings();
 		await harness.openDashboard();
 
-		const dashboardPage = await loader.getHarness(DashboardPageHarness);
+		const returnedDashboardPage = await loader.getHarness(DashboardPageHarness);
 
-		expect(await harness.currentLinkText).toBe('Dashboard');
-		expect(await dashboardPage.titleText).toBe('Market dashboard');
+		expect(await returnedDashboardPage.statusText).toBe('Paused');
+		expect(workerFactory).toHaveBeenCalledTimes(1);
+		expect(worker.postMessage).toHaveBeenNthCalledWith(1, {
+			runId: 1,
+			settings: ProducerSettingsConfig.Defaults,
+			type: 'start',
+		});
+		expect(worker.postMessage).toHaveBeenNthCalledWith(2, { type: 'pause' });
+		expect(worker.postMessage).toHaveBeenCalledTimes(2);
 	});
 
 	it('should redirect an unknown address to the dashboard', async () => {
