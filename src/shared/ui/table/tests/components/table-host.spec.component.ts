@@ -1,0 +1,58 @@
+import { Component } from '@angular/core';
+
+import {
+	TableCaptionComponent,
+	TableCellComponent,
+	TableComponent,
+	TableHeaderCellComponent,
+	TableRowComponent,
+	TableScrollComponent,
+} from '../../components';
+
+@Component({
+	selector: 'app-table-host-spec',
+	imports: [
+		TableCaptionComponent,
+		TableCellComponent,
+		TableComponent,
+		TableHeaderCellComponent,
+		TableRowComponent,
+		TableScrollComponent,
+	],
+	template: `
+		<section appTableScroll data-po="table-scroll">
+			<table appTable>
+				<caption appTableCaption data-po="table-caption">Prices of the day</caption>
+
+				<thead>
+					<tr appTableRow>
+						<th appTableHeaderCell scope="col" data-po="table-text-header">Name</th>
+						<th appTableHeaderCell="numeric" scope="col" data-po="table-numeric-header">Price</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr appTableRow>
+						<th appTableCell scope="row" data-po="table-text-cell">ALFA</th>
+						<td appTableCell="numeric" data-po="table-numeric-cell">$1.00</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+
+		<section appTableScroll data-po="table-scroll-without-caption">
+			<table appTable>
+				<tbody>
+					<tr appTableRow>
+						<td appTableCell>BETA</td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+
+		<table appTable>
+			<caption appTableCaption data-po="table-second-caption">Prices of yesterday</caption>
+		</table>
+	`,
+})
+export class TableHostSpecComponent {}
