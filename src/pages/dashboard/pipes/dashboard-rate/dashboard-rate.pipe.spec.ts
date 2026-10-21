@@ -1,6 +1,8 @@
-import { UpdatesPerSecondPipe } from './updates-per-second.pipe';
+import { DashboardRatePipe } from './dashboard-rate.pipe';
 
-describe(UpdatesPerSecondPipe, () => {
+import { MarketFeedSettingsMock } from '~/entities/market/testing';
+
+describe(DashboardRatePipe, () => {
 	it.each([
 		{ batchIntervalMs: 500, updatesPerBatch: 100, updatesPerSecond: 200 },
 		{ batchIntervalMs: 50, updatesPerBatch: 1000, updatesPerSecond: 20000 },
@@ -8,9 +10,9 @@ describe(UpdatesPerSecondPipe, () => {
 	])(
 		'should report $updatesPerSecond updates per second for $updatesPerBatch updates every $batchIntervalMs ms',
 		({ batchIntervalMs, updatesPerBatch, updatesPerSecond }) => {
-			expect(new UpdatesPerSecondPipe().transform({ batchIntervalMs, instrumentCount: 5, updatesPerBatch })).toBe(
-				updatesPerSecond
-			);
+			const settings = MarketFeedSettingsMock.create({ batchIntervalMs, updatesPerBatch });
+
+			expect(new DashboardRatePipe().transform(settings)).toBe(updatesPerSecond);
 		}
 	);
 });

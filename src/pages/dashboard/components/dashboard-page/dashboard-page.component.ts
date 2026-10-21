@@ -1,40 +1,46 @@
-import { ChangeDetectionStrategy, Component, computed, inject, Signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 
-import { UpdatesPerSecondPipe } from '../../pipes';
+import { DashboardRatePipe } from '../../pipes';
 import { CentsPipe, SignedRatioPipe } from '~/shared/pipes';
 
-import { InstrumentMetrics, MarketFeedService, ProducerSettings, ProducerStatus } from '~/entities/market';
+import { MarketFeedDirective, MarketFeedErrorDirective } from '~/entities/market';
+import { AlertComponent } from '~/shared/ui/alert';
+import { BadgeComponent } from '~/shared/ui/badge';
+import { ButtonComponent } from '~/shared/ui/button';
+import { NoteComponent } from '~/shared/ui/note';
+import { PageHeaderComponent, PageTitleComponent } from '~/shared/ui/page';
+import {
+	TableCaptionComponent,
+	TableCellComponent,
+	TableComponent,
+	TableHeaderCellComponent,
+	TableRowComponent,
+	TableScrollComponent,
+} from '~/shared/ui/table';
 
 @Component({
 	selector: 'app-dashboard-page',
-	imports: [CentsPipe, DecimalPipe, SignedRatioPipe, UpdatesPerSecondPipe],
+	imports: [
+		AlertComponent,
+		BadgeComponent,
+		ButtonComponent,
+		CentsPipe,
+		DashboardRatePipe,
+		DecimalPipe,
+		MarketFeedDirective,
+		MarketFeedErrorDirective,
+		NoteComponent,
+		PageHeaderComponent,
+		PageTitleComponent,
+		SignedRatioPipe,
+		TableCaptionComponent,
+		TableCellComponent,
+		TableComponent,
+		TableHeaderCellComponent,
+		TableRowComponent,
+		TableScrollComponent,
+	],
 	templateUrl: './dashboard-page.component.html',
-	styleUrl: './dashboard-page.component.scss',
-	changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DashboardPageComponent {
-	protected readonly isFailed = computed(() => this._marketFeedService.status() === ProducerStatus.Failed);
-	protected readonly isPaused = computed(() => this._marketFeedService.status() === ProducerStatus.Paused);
-	private readonly _marketFeedService = inject(MarketFeedService);
-
-	protected get errorMessage(): Signal<string | null> {
-		return this._marketFeedService.errorMessage;
-	}
-
-	protected get rows(): Signal<InstrumentMetrics[]> {
-		return this._marketFeedService.rows;
-	}
-
-	protected get settings(): Signal<ProducerSettings> {
-		return this._marketFeedService.settings;
-	}
-
-	protected get status(): Signal<ProducerStatus> {
-		return this._marketFeedService.status;
-	}
-
-	protected togglePause(): void {
-		this._marketFeedService.togglePause();
-	}
-}
+export class DashboardPageComponent {}

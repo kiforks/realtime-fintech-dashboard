@@ -1,65 +1,63 @@
-<header class="dashboard-page-header">
-	<h1 class="dashboard-page-title" i18n data-po="dashboard-page-title">Market dashboard</h1>
-	<div class="dashboard-page-producer">
-		<span class="dashboard-page-status" i18n role="status" data-po="dashboard-page-status">
-			{status(), select, running {Running} paused {Paused} failed {Failed}}
-		</span>
-		@let updatesPerSecond = settings() | updatesPerSecond;
-		<span class="dashboard-page-rate" i18n data-po="dashboard-page-rate">
-			{settings().instrumentCount, plural, =1 {1 instrument,} other {{{ settings().instrumentCount }} instruments,}}
-			{settings().updatesPerBatch, plural, =1 {1 update} other {{{ settings().updatesPerBatch }} updates}}
-			every {{ settings().batchIntervalMs }} ms
-			{updatesPerSecond, plural, =1 {(1 update/s)} other {({{ updatesPerSecond | number }} updates/s)}}
-		</span>
-		<button
-			class="dashboard-page-toggle"
-			i18n
-			type="button"
-			[disabled]="isFailed()"
-			(click)="togglePause()"
-			data-po="dashboard-page-toggle"
-		>
-			{isPaused(), select, true {Resume} other {Pause}}
-		</button>
-	</div>
-</header>
-@if (errorMessage(); as message) {
-	<p class="dashboard-page-error" i18n role="alert" data-po="dashboard-page-error">
-		Market data producer stopped: {{ message }}. Apply settings to restart.
+<header *appMarketFeed="let feed" appPageHeader>
+	<h1 appPageTitle i18n data-po="dashboard-page-title">Market dashboard</h1>
+
+	<output appBadge i18n data-po="dashboard-page-status">
+		{feed.status(), select, running {Running} paused {Paused} failed {Failed}}
+	</output>
+
+	@let settings = feed.settings();
+	@let updatesPerSecond = settings | dashboardRate;
+	<p appNote i18n data-po="dashboard-page-rate">
+		{settings.instrumentCount, plural, =1 {1 instrument,} other {{{ settings.instrumentCount }} instruments,}}
+		{settings.updatesPerBatch, plural, =1 {1 update} other {{{ settings.updatesPerBatch }} updates}}
+		every {{ settings.batchIntervalMs }} ms
+		{updatesPerSecond, plural, =1 {(1 update/s)} other {({{ updatesPerSecond | number }} updates/s)}}
 	</p>
-}
-<div
-	class="dashboard-page-table-container"
-	aria-labelledby="dashboard-page-caption"
-	role="region"
-	tabindex="0"
-	data-po="dashboard-page-table"
->
-	<table class="dashboard-page-table">
-		<caption id="dashboard-page-caption" class="dashboard-page-caption" i18n>
+
+	<button
+		appButton
+		i18n
+		type="button"
+		[disabled]="!feed.canTogglePause()"
+		(click)="feed.togglePause()"
+		data-po="dashboard-page-toggle"
+	>
+		{feed.isPaused(), select, true {Resume} other {Pause}}
+	</button>
+</header>
+
+<p *appMarketFeedError="let message" appAlert i18n data-po="dashboard-page-error">
+	Market data producer stopped: {{ message }}. Apply settings to restart.
+</p>
+
+<section *appMarketFeed="let feed" appTableScroll data-po="dashboard-page-table">
+	<table appTable>
+		<caption appTableCaption i18n data-po="dashboard-page-caption">
 			Metrics since the current run started. A dash means the value cannot be calculated yet.
 		</caption>
+
 		<thead>
-			<tr>
-				<th class="dashboard-page-symbol" i18n>Instrument</th>
-				<th i18n>Last price</th>
-				<th i18n>Spread</th>
-				<th i18n>Volume</th>
-				<th i18n>VWAP</th>
-				<th i18n>Imbalance</th>
+			<tr appTableRow>
+				<th appTableHeaderCell i18n scope="col">Instrument</th>
+				<th appTableHeaderCell="numeric" i18n scope="col">Last price</th>
+				<th appTableHeaderCell="numeric" i18n scope="col">Spread</th>
+				<th appTableHeaderCell="numeric" i18n scope="col">Volume</th>
+				<th appTableHeaderCell="numeric" i18n scope="col">VWAP</th>
+				<th appTableHeaderCell="numeric" i18n scope="col">Imbalance</th>
 			</tr>
 		</thead>
+
 		<tbody>
-			@for (row of rows(); track row.symbol) {
-				<tr data-po="dashboard-page-row">
-					<th class="dashboard-page-symbol">{{ row.symbol }}</th>
-					<td>{{ row.lastPriceCents | cents }}</td>
-					<td>{{ row.spreadCents | cents }}</td>
-					<td>{{ row.volume | number }}</td>
-					<td>{{ row.vwapCents | cents }}</td>
-					<td>{{ row.imbalance | signedRatio }}</td>
+			@for (row of feed.rows(); track row.symbol) {
+				<tr appTableRow data-po="dashboard-page-row">
+					<th appTableCell scope="row" data-po="dashboard-page-cell">{{ row.symbol }}</th>
+					<td appTableCell="numeric" data-po="dashboard-page-cell">{{ row.lastPriceCents | cents }}</td>
+					<td appTableCell="numeric" data-po="dashboard-page-cell">{{ row.spreadCents | cents }}</td>
+					<td appTableCell="numeric" data-po="dashboard-page-cell">{{ row.volume | number }}</td>
+					<td appTableCell="numeric" data-po="dashboard-page-cell">{{ row.vwapCents | cents }}</td>
+					<td appTableCell="numeric" data-po="dashboard-page-cell">{{ row.imbalance | signedRatio }}</td>
 				</tr>
 			}
 		</tbody>
 	</table>
-</div>
+</section>
