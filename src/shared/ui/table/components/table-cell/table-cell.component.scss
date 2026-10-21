@@ -1,0 +1,8 @@
+:host {
+	padding: var(--space-sm) var(--space-md);
+	text-align: start;
+}
+
+:host(.numeric) {
+	text-align: end;
+}

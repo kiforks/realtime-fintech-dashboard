@@ -1,21 +1,36 @@
 import { computed, DestroyRef, inject, Service, Signal, signal } from '@angular/core';
 
 import { MarketMetricsHelper } from '../../helpers';
-import { ProducerStatus } from '../../enums';
-import { InstrumentStats, MarketWorker, ProducerEvent, ProducerSettings } from '../../models';
+import { MarketFeedStatus } from '../../enums';
+import {
+	MarketFeedSettings,
+	MarketFeedState,
+	MarketInstrumentStats,
+	MarketProducerCommand,
+	MarketProducerEvent,
+	MarketWorker,
+} from '../../models';
 
-import { ProducerSettingsConfig } from '../../configs';
+import { MarketFeedSettingsConfig } from '../../configs';
 import { MARKET_WORKER_FACTORY } from '../../tokens';
 
 @Service()
 export class MarketFeedService {
 	public readonly rows = computed(() => this._stats().map(stats => MarketMetricsHelper.toMetrics(stats)));
+	public readonly status = computed(() => this._state().status);
+	public readonly errorMessage = computed(() => {
+		const state = this._state();
+
+		return state.status === MarketFeedStatus.Failed ? state.errorMessage : null;
+	});
+
+	public readonly isPaused = computed(() => this.status() === MarketFeedStatus.Paused);
+	public readonly canTogglePause = computed(() => this.status() !== MarketFeedStatus.Failed);
 	private readonly _destroyRef = inject(DestroyRef);
 	private readonly _marketWorkerFactory = inject(MARKET_WORKER_FACTORY);
-	private readonly _errorMessage = signal<string | null>(null);
-	private readonly _settings = signal<ProducerSettings>(ProducerSettingsConfig.Defaults);
-	private readonly _stats = signal<readonly InstrumentStats[]>([]);
-	private readonly _status = signal(ProducerStatus.Running);
+	private readonly _settings = signal<MarketFeedSettings>(MarketFeedSettingsConfig.Defaults);
+	private readonly _state = signal<MarketFeedState>({ status: MarketFeedStatus.Running });
+	private readonly _stats = signal<readonly MarketInstrumentStats[]>([]);
 	private _runId = 0;
 	private _worker: MarketWorker | null = null;
 
@@ -23,51 +38,48 @@ export class MarketFeedService {
 		this._setup();
 	}
 
-	public get errorMessage(): Signal<string | null> {
-		return this._errorMessage.asReadonly();
-	}
-
-	public get settings(): Signal<ProducerSettings> {
+	public get settings(): Signal<MarketFeedSettings> {
 		return this._settings.asReadonly();
 	}
 
-	public get status(): Signal<ProducerStatus> {
-		return this._status.asReadonly();
+	public start(): void {
+		this.apply(MarketFeedSettingsConfig.Defaults);
 	}
 
-	public apply(settings: ProducerSettings): void {
+	public apply(settings: MarketFeedSettings): void {
 		this._runId += 1;
 		this._settings.set(settings);
 		this._stats.set(MarketMetricsHelper.empty(settings.instrumentCount));
-		this._errorMessage.set(null);
-		this._status.set(ProducerStatus.Running);
-		this._connect().postMessage({ runId: this._runId, settings, type: 'start' });
+		this._state.set({ status: MarketFeedStatus.Running });
+		this._post({ runId: this._runId, settings, type: 'start' });
 	}
 
 	public togglePause(): void {
-		const status = this._status();
+		const { status } = this._state();
 
-		if (status === ProducerStatus.Failed) {
-			return;
+		switch (status) {
+			case MarketFeedStatus.Running:
+				this._post({ type: 'pause' });
+				this._state.set({ status: MarketFeedStatus.Paused });
+				break;
+			case MarketFeedStatus.Paused:
+				this._post({ type: 'resume' });
+				this._state.set({ status: MarketFeedStatus.Running });
+				break;
+			default:
+				break;
 		}
-
-		const isRunning = status === ProducerStatus.Running;
-
-		this._connect().postMessage({ type: isRunning ? 'pause' : 'resume' });
-		this._status.set(isRunning ? ProducerStatus.Paused : ProducerStatus.Running);
 	}
 
 	private _setup(): void {
 		this._destroyRef.onDestroy(() => {
 			this._worker?.terminate();
 		});
-		this.apply(ProducerSettingsConfig.Defaults);
 	}
 
-	private _connect(): MarketWorker {
+	private _post(command: MarketProducerCommand): void {
 		this._worker ??= this._createWorker();
-
-		return this._worker;
+		this._worker.postMessage(command);
 	}
 
 	private _createWorker(): MarketWorker {
@@ -84,18 +96,29 @@ export class MarketFeedService {
 		return worker;
 	}
 
-	private _receive(event: ProducerEvent): void {
+	private _receive(event: MarketProducerEvent): void {
 		if (event.runId !== this._runId) {
 			return;
 		}
 
-		if (event.type === 'error') {
-			this._fail(event.message);
+		switch (event.type) {
+			case 'error':
+				this._fail(event.message);
+				break;
+			case 'snapshot':
+				this._update(event.stats);
+				break;
+			default:
+				break;
+		}
+	}
 
+	private _update(stats: readonly MarketInstrumentStats[]): void {
+		if (this.isPaused()) {
 			return;
 		}
 
-		this._stats.set(event.stats);
+		this._stats.set(stats);
 	}
 
 	private _crash(event: ErrorEvent): void {
@@ -103,10 +126,9 @@ export class MarketFeedService {
 		this._fail($localize`The market data worker stopped unexpectedly`);
 	}
 
-	private _fail(message: string): void {
+	private _fail(errorMessage: string): void {
 		this._worker?.terminate();
 		this._worker = null;
-		this._errorMessage.set(message);
-		this._status.set(ProducerStatus.Failed);
+		this._state.set({ errorMessage, status: MarketFeedStatus.Failed });
 	}
 }

@@ -1,1 +1,1 @@
-export { MARKET_WORKER_FACTORY } from './market-worker-factory.token';
+export { MARKET_WORKER_FACTORY } from './market-worker-factory';

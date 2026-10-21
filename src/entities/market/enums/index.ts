@@ -1,1 +1,1 @@
-export { ProducerStatus } from './producer-status.enum';
+export { MarketFeedStatus } from './market-feed-status.enum';

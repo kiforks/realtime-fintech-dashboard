@@ -1,0 +1,14 @@
+@use 'app-theme';
+
+html {
+	scrollbar-gutter: stable;
+}
+
+body {
+	margin: 0;
+	font-size: var(--font-size-base);
+	line-height: var(--line-height-base);
+	font-family: var(--font-family);
+	color: var(--color-text);
+	background: var(--color-background);
+}

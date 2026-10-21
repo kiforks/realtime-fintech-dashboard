@@ -24,7 +24,7 @@ WebAssembly library written in Rust that runs inside a Web Worker.
 ```mermaid
 flowchart LR
   subgraph main["Main thread (Angular)"]
-    Settings["Settings page"] -- "apply(settings)" --> Feed["MarketFeedService<br/>signals: settings, status, rows"]
+    Settings["Settings page"] -- "apply(settings)" --> Feed["MarketFeedService<br/>signals: settings, status, errorMessage, rows"]
     Dashboard["Dashboard page"] -- "togglePause()" --> Feed
     Feed -- "rows (computed metrics)" --> Dashboard
   end
@@ -48,12 +48,16 @@ askQuantity]`. `MarketProducer` folds every trade into seven numbers per instrum
 2. **The UI cost does not depend on the generation rate.** The worker sends at most one message per batch interval
    (≤ 20 per second) with at most 50 rows, whatever the number of updates per batch. Every trade is counted in the
    worker, so a slower UI can never lose volume, and no event history is kept.
-3. **One producer for the application's lifetime.** `MarketFeedService` is a root service created by an app
-   initializer; it owns the only worker. Pages hold no state and provide nothing, so navigation cannot create a second
-   producer.
+3. **One producer for the application's lifetime.** `MarketFeedService` is a root service; an app initializer calls its
+   `start()`, which creates the only worker. Pages hold no state and provide nothing, so navigation cannot create a
+   second producer. Templates read the feed through two structural directives of the market entity:
+   `*appMarketFeed="let feed"` projects the service into the view, and `*appMarketFeedError="let message"` renders its
+   content only while the run has failed.
 4. **Runs are epochs.** Every `apply` increments a `runId`; the worker tags each event with the run that produced it and
    the service drops events of any other run, so a late result of a previous run never overwrites the new one.
-   Commands need no `runId` because the worker processes them in order.
+   Commands need no `runId` because the worker processes them in order. Snapshots that were already on their way when
+   the user paused are dropped, so a paused dashboard never changes; the next snapshot after Resume carries the
+   cumulative totals.
 5. **The Wasm module is inlined into the worker chunk.** Angular's `loader: { ".wasm": "binary" }` turns the module into
    bytes that the worker passes to wasm-bindgen's `initSync`. There is no fetch, so there are no base-href, MIME type or
    cache mismatches on GitHub Pages, and the unit tests load the compiled module the same way.
@@ -61,7 +65,8 @@ askQuantity]`. `MarketProducer` folds every trade into seven numbers per instrum
 **Cleanup and errors.** A new run frees the previous Wasm generator (`free()`). A generator that cannot be created or a
 batch that fails posts an `error` event with its message. Any failure of the current run — that event or a crashed
 worker — terminates the worker, so a Wasm instance left broken by a trap is never reused; the next **Apply** starts a
-fresh worker. The dashboard shows the failure in an alert and disables Pause. The worker is terminated when the
+fresh worker. The feed keeps the status and the error message in one state signal, so they cannot disagree. The
+dashboard shows the failure in an alert and disables Pause. The worker is terminated when the
 application is destroyed.
 
 ## Metrics
@@ -97,24 +102,37 @@ updates every 50 ms (20,000 updates per second) — over 10 seconds:
 | ----------------- | --------- | ----------- | -------------------- |
 | 165               | 6.4 ms    | 12.2 ms     | 0                    |
 
-The worker chunk with the inlined Wasm module is about 34 kB raw (14 kB compressed).
+Rendering the table through the UI kit components costs no measurable time: at the same load, measured with the
+Chrome DevTools Protocol over 10 seconds, the main thread is busy about 11% of the time (scripting about 2.3%) — the
+same as before the UI kit (11%, 2.0%).
+
+The initial bundle is about 288 kB raw (81 kB compressed); the settings page and the signal-forms code load lazily
+(68 kB raw). The worker chunk with the inlined Wasm module is about 34 kB raw (14 kB compressed).
 
 ## Tests
 
-| Requirement                                           | Where                                                                       |
-| ----------------------------------------------------- | --------------------------------------------------------------------------- |
-| Metrics: worked example, zero denominators, isolation | `market-metrics.helper.spec.ts`                                             |
-| Formatting: currency, signed imbalance, unavailable   | `cents.pipe.spec.ts`, `signed-ratio.pipe.spec.ts`, `dashboard-page` spec    |
-| Settings validation and reset on Apply                | `settings-page` spec, `producer-settings.helper.spec.ts`, feed service spec |
-| Pause / resume without catch-up                       | `market-producer.spec.ts` (fake timers), feed service and dashboard specs   |
-| Rejection of results from a previous run              | `market-feed.service.spec.ts`                                               |
-| One producer and paused state across navigation       | `root.component.spec.ts`                                                    |
-| Generator: batch sizes, valid values, state, seeds    | Rust tests in `wasm/src/market.rs`, `market-generator.wasm.spec.ts`         |
+| Requirement                                           | Where                                                                      |
+| ----------------------------------------------------- | -------------------------------------------------------------------------- |
+| Metrics: worked example, zero denominators, isolation | `market-metrics.helper.spec.ts`                                            |
+| Formatting: currency, signed imbalance, unavailable   | `cents.pipe.spec.ts`, `signed-ratio.pipe.spec.ts`, `dashboard-page` spec   |
+| Settings validation and reset on Apply                | `settings-page` spec, `integer-range.validator.spec.ts`, feed service spec |
+| Pause / resume without catch-up                       | `market.producer.spec.ts` (fake timers), feed service and dashboard specs  |
+| Rejection of results from a previous run              | `market-feed.service.spec.ts`                                              |
+| One producer and paused state across navigation       | `app-root.component.spec.ts`                                               |
+| Generator: batch sizes, valid values, state, seeds    | Rust tests in `wasm/src/market.rs`, `market-generator.factory.spec.ts`     |
+| Accessibility: names, descriptions, roles             | `form`, `table`, `nav` and `alert` UI kit specs and the page specs         |
 
-Component specs drive the DOM through Angular CDK component harnesses. HappyDOM has no `Worker`, so the worker is
-replaced through the `MARKET_WORKER_FACTORY` token, and `MarketProducer` is plain TypeScript tested with fake timers —
-no test waits for real time. `market-generator.wasm.spec.ts` runs the compiled module and checks a fixed-seed batch
-field by field, which guards the layout contract between Rust and TypeScript.
+The unit tests run in **Vitest browser mode** in headless Chromium (Playwright provider), so they see real layout,
+focus and the accessibility tree. Every component spec drives the DOM through a **page object** — a `*.po.ts` class
+whose name ends in `PO` — and its locators come only from `page.getByTestId(...)`; `vitest-base.config.js` maps test
+ids to the `data-po` attribute. Assertions use `expect.element(...)`, which retries until the view settles, so no spec
+waits for real time. Doubles go through `MockProvider` from ng-mocks, and services a spec talks to are injected into
+`let` variables in `beforeEach`. Test data comes from mock factories in `mocks/` (`MarketInstrumentStatsMock.create()`,
+`.empty(symbol)`), which return plain objects, so `toStrictEqual` compares whole results.
+
+The worker is replaced through the `MARKET_WORKER_FACTORY` token (exported from the market entity's `testing.ts`), and
+`MarketProducer` is plain TypeScript tested with fake timers. `market-generator.factory.spec.ts` runs the compiled
+module and checks a fixed-seed batch field by field, which guards the layout contract between Rust and TypeScript.
 
 ## Getting started
 
@@ -122,8 +140,10 @@ Requirements:
 
 - Node.js 24 (see `.nvmrc`) and npm
 - Rust through [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.99.1 with the `wasm32-unknown-unknown`
-  target, clippy and rustfmt, so rustup installs the right toolchain on first use. With Homebrew, `rustup` is keg-only:
-  add `$(brew --prefix rustup)/bin` to `PATH`.
+  target, clippy and rustfmt, so rustup installs the right toolchain on first use. The Rust scripts run through
+  `scripts/with-rust.mjs`, which asks `rustup which cargo` for the pinned toolchain when `cargo` is not on `PATH`
+  (Homebrew installs `rustup` keg-only), so no shell setup is needed.
+- Chromium for the unit tests, once per machine: `npx playwright install chromium` (CI installs it itself).
 
 `wasm-pack` comes from npm. `npm start`, `npm run build`, `npm test` and `npm run lint` rebuild the Wasm package first.
 
@@ -154,27 +174,68 @@ import only from layers below its own.
 
 ```
 src/
-  app/                        bootstrap (main.ts, app.config.ts, index.html), root shell, routes, global styles and theme
+  app/                        bootstrap, the app-root shell, routes with page titles, global styles and theme
   pages/
-    dashboard/                dashboard page and its updates-per-second pipe
-    settings/                 settings page, its form draft model and the draft-to-settings helper
+    dashboard/                dashboard page and its rate pipe
+    settings/                 settings page, its draft model and helper, and the form schema
   entities/
-    market/                   market domain: models, configs, metrics helper, feed service, worker factory, worker
-  shared/                     formatting pipes, number formats, route paths
+    market/                   market domain: models, configs, mocks, metrics helper, feed service and directives,
+                              worker factory token, generator factory, producer and the worker entry
+  shared/
+    ui/                       UI kit: alert, badge, button, form, nav, note, page, table
+    validators/               reusable signal-form rules
+    configs/, models/, pipes/, services/
 wasm/                         Rust crate `market-generator`, compiled to WebAssembly
 ```
 
 - **Pages first.** Code that only one page needs lives in that page's slice. There are no `features` or `widgets`
   layers, because no user action or block appears on more than one page. The market entity holds what both pages and
-  the app need: the feed service and the domain model behind it.
-- **One entity.** Instrument stats, producer settings and the worker protocol describe one feed, and they reference
-  each other, so they stay in one slice instead of being split and joined with cross-imports.
-- **Public API.** A slice is imported only through its `index.ts`; specs use its `testing.ts` (mocks and component
-  harnesses). Inside a slice, imports are relative; between slices, through the `~/` alias. Inside a slice, code is
-  grouped by kind (`components/`, `services/`, `models/`, …) rather than by the standard FSD segment names.
+  the app need: the feed service, its directives and the domain model behind it.
+- **Names carry their slice.** Every unit inside a slice starts with the slice name, in the file and in the symbol:
+  `market-feed.service.ts` / `MarketFeedService`, `settings-draft.model.ts` / `SettingsDraft`,
+  `dashboard-rate.pipe.ts` / `DashboardRatePipe`, `app-root.component.ts` / `AppRootComponent`. `shared` is exempt.
+- **One unit per sub-folder.** Inside a slice, code is grouped by kind (`components/`, `directives/`, `services/`,
+  `tokens/`, `factories/`, `producers/`, …), and every unit that has a spec gets its own sub-folder with an `index.ts`.
+  Specs of components and directives live in a `tests/` sub-folder together with their page objects and host
+  components (`*.spec.component.ts` with their `*.spec.component.html`).
+- **Public API.** A slice is imported only through its `index.ts`; specs use its `testing.ts` (mocks, page objects, the
+  worker token). Inside a slice, imports are relative; between slices, through the `~/` alias. A UI kit module is
+  imported through `~/shared/ui/<module>`, so a page pulls in only the modules it uses and the signal-forms code stays
+  in the lazily loaded settings chunk.
 - **Enforced by ESLint.** `@kiforks/eslint-config/feature-sliced-design.js` checks the direction between layers;
-  `eslint.config.js` adds three more checks: no import past a slice's or a shared segment's public API, no import of one
-  page from another, and no import of one entity from another.
+  `eslint.config.js` adds three more checks: no import past a slice's, a shared segment's or a UI kit module's public
+  API, no import of one page from another, and no import of one entity from another.
+
+## UI kit and accessibility
+
+Pages contain no styles. They compose `src/shared/ui`, whose components are plain attribute selectors that style
+only their own host. The page picks the native element, so the markup keeps its semantics (a button style can sit on a
+`button` or on a link) and the application renders no `div` or `span` at all. A variant input, such as the button
+appearance or the cell type, becomes the host class as it is, and every component keeps its template in its own
+`.html` file.
+
+| Module   | Selectors                                                                                                        | Used on                                         |
+| -------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `page`   | `[appPageHeader]`, `[appPageTitle]`                                                                              | `header`, `h1`                                  |
+| `button` | `[appButton]`, `[appButton="primary"]`                                                                           | `button`, `a`                                   |
+| `badge`  | `[appBadge]`                                                                                                     | `output` — the producer status, announced       |
+| `note`   | `[appNote]`                                                                                                      | `p`                                             |
+| `alert`  | `[appAlert]` with `role="alert"`                                                                                 | `p`                                             |
+| `nav`    | `[appNavList]` (keeps list semantics with `role="list"`), `[appNavLink]` styled from `aria-current`              | `ul`, `a`                                       |
+| `table`  | `[appTableScroll]`, `[appTable]`, `[appTableCaption]`, `[appTableRow]`, `[appTableHeaderCell]`, `[appTableCell]` | `section`, `table`, `caption`, `tr`, `th`, `td` |
+| `form`   | `[appForm]`, `[appFormLabel]`, `[appFormInput]`, `[appFormError]`, `*appFormIfInvalid`                           | `form`, `label`, `input`, `p`                   |
+
+- The scrolling table region is focusable and named after its caption automatically: the caption takes a generated
+  id and the region points `aria-labelledby` at it. Header cells carry `scope`.
+- A label, its input and its error are linked through the unique name that signal forms give every field:
+  `label[for]`, the input `id`, and `aria-describedby` / `aria-invalid` only while the error is shown (after the user
+  leaves the field or submits). `*appFormIfInvalid` renders the error with the field state as its context, so the
+  message reads the limits from the schema (`field.min()`, `field.max()`). Signal forms also set `required`, `min`
+  and `max` on the input.
+- Every route sets the document title. The current navigation link is marked by weight and an underline as well as
+  by colour. Input and button borders use `--color-control-border`, which keeps a 3:1 contrast in both themes, and all
+  text meets 4.5:1. Focus is always visible, and the styles use logical properties.
+- Components rely on Angular 22's default `OnPush` change detection, so none of them sets `changeDetection`.
 
 ## Delivery
 

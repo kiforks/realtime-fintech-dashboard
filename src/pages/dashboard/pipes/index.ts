@@ -1,1 +1,1 @@
-export { UpdatesPerSecondPipe } from './updates-per-second';
+export { DashboardRatePipe } from './dashboard-rate';

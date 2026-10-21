@@ -1,12 +1,12 @@
-import { MarketWorker, ProducerCommand, ProducerEvent } from '../models';
+import { MarketProducerCommand, MarketProducerEvent, MarketWorker } from '../models';
 
 export class MarketWorkerMock implements MarketWorker {
 	public onerror: ((event: ErrorEvent) => void) | null = null;
-	public onmessage: ((event: MessageEvent<ProducerEvent>) => void) | null = null;
-	public readonly postMessage = vi.fn<(command: ProducerCommand) => void>();
+	public onmessage: ((event: MessageEvent<MarketProducerEvent>) => void) | null = null;
+	public readonly postMessage = vi.fn<(command: MarketProducerCommand) => void>();
 	public readonly terminate = vi.fn<() => void>();
 
-	public emit(event: ProducerEvent): void {
+	public emit(event: MarketProducerEvent): void {
 		this.onmessage?.(new MessageEvent('message', { data: event }));
 	}
 

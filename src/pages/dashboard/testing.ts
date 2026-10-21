@@ -1,2 +1,1 @@
-export { DashboardPageHarness } from './components/dashboard-page/dashboard-page.component.harness';
-export { DashboardPageRowHarness } from './components/dashboard-page/dashboard-page-row.harness';
+export { DashboardPageComponentPO } from './components/dashboard-page/tests/dashboard-page.component.po';

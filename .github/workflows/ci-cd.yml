@@ -30,6 +30,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Install Chromium for the browser mode unit tests
+        run: npx playwright install --with-deps chromium
+
       - run: npm run lint:wasm
 
       - run: npm run test:wasm

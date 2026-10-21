@@ -8,7 +8,15 @@ import kiforTypescript from '@kiforks/eslint-config/typescript.js';
 import kiforVitest from '@kiforks/eslint-config/vitest.js';
 
 const I18N_RULE = '@angular-eslint/template/i18n';
-const NON_TRANSLATABLE_ATTRIBUTES = ['aria-describedby', 'aria-labelledby', 'ariaCurrentWhenActive'];
+const NON_TRANSLATABLE_ATTRIBUTES = [
+	'appButton',
+	'appTableCell',
+	'appTableHeaderCell',
+	'aria-describedby',
+	'aria-labelledby',
+	'ariaCurrentWhenActive',
+	'scope',
+];
 
 const withNonTranslatableAttributes = config => {
 	const i18nRule = config.rules?.[I18N_RULE];
@@ -40,8 +48,8 @@ const PUBLIC_API_PATTERNS = [
 		message: '❌ Import a slice only through its public API: index.ts, or testing.ts in tests.',
 	},
 	{
-		group: ['~/shared/*/*'],
-		message: '❌ Import a shared segment only through its index.ts.',
+		group: ['~/shared/*/*', '!~/shared/ui/*', '~/shared/ui/*/*'],
+		message: '❌ Import a shared segment through its index.ts, and a UI kit module through ~/shared/ui/<module>.',
 	},
 ];
 const SLICE_ISOLATION_PATTERNS = {
@@ -98,13 +106,31 @@ export default [
 	})),
 	kiforDisableRecommend,
 	...kiforAngularTypescript,
+	{
+		files: ['**/*.ts'],
+		rules: {
+			'@angular-eslint/prefer-on-push-component-change-detection': 'off',
+		},
+	},
 	...kiforAngularTemplate.map(withNonTranslatableAttributes),
 	...kiforVitest,
-	...kiforTests,
+	...kiforTests.map(config => ({ ...config, files: [...config.files, '**/*.spec.component.ts'] })),
 	{
 		files: ['**/*.spec.ts'],
 		rules: {
 			'vitest/prefer-expect-resolves': 'off',
+		},
+	},
+	{
+		files: ['**/*.spec.component.html'],
+		rules: {
+			[I18N_RULE]: 'off',
+		},
+	},
+	{
+		files: ['**/*.po.ts', '**/*.spec.ts'],
+		rules: {
+			'@angular-eslint/no-experimental': 'off',
 		},
 	},
 	...kiforFsd.map(withSliceBoundaries),
@@ -125,6 +151,7 @@ export default [
 			'node_modules/',
 			'.vscode/',
 			'.idea/',
+			'.claude/',
 		],
 	},
 ];

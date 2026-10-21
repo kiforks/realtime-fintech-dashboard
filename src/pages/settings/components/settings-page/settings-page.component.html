@@ -1,74 +1,58 @@
-<h1 class="settings-page-title" i18n data-po="settings-page-title">Producer settings</h1>
-<form class="settings-page-form" [formRoot]="settingsForm">
-	@let isInstrumentCountInvalid = settingsForm.instrumentCount().touched() && settingsForm.instrumentCount().invalid();
-	@let isUpdatesPerBatchInvalid = settingsForm.updatesPerBatch().touched() && settingsForm.updatesPerBatch().invalid();
-	@let isBatchIntervalMsInvalid = settingsForm.batchIntervalMs().touched() && settingsForm.batchIntervalMs().invalid();
-	<label class="settings-page-field">
-		<span class="settings-page-label" i18n>Instrument count</span>
-		<input
-			class="settings-page-input"
-			aria-describedby="settings-page-instrument-count-error"
-			type="number"
-			[aria-invalid]="isInstrumentCountInvalid"
-			[formField]="settingsForm.instrumentCount"
-			data-po="settings-page-instrument-count"
-		/>
-	</label>
-	@if (isInstrumentCountInvalid) {
-		<p
-			id="settings-page-instrument-count-error"
-			class="settings-page-error"
-			i18n
-			role="alert"
-			data-po="settings-page-instrument-count-error"
-		>
-			Enter a whole number from {{ ranges.instrumentCount.min }} to {{ ranges.instrumentCount.max }}.
-		</p>
-	}
-	<label class="settings-page-field">
-		<span class="settings-page-label" i18n>Updates per batch</span>
-		<input
-			class="settings-page-input"
-			aria-describedby="settings-page-updates-per-batch-error"
-			type="number"
-			[aria-invalid]="isUpdatesPerBatchInvalid"
-			[formField]="settingsForm.updatesPerBatch"
-			data-po="settings-page-updates-per-batch"
-		/>
-	</label>
-	@if (isUpdatesPerBatchInvalid) {
-		<p
-			id="settings-page-updates-per-batch-error"
-			class="settings-page-error"
-			i18n
-			role="alert"
-			data-po="settings-page-updates-per-batch-error"
-		>
-			Enter a whole number from {{ ranges.updatesPerBatch.min }} to {{ ranges.updatesPerBatch.max }}.
-		</p>
-	}
-	<label class="settings-page-field">
-		<span class="settings-page-label" i18n>Batch interval, ms</span>
-		<input
-			class="settings-page-input"
-			aria-describedby="settings-page-batch-interval-error"
-			type="number"
-			[aria-invalid]="isBatchIntervalMsInvalid"
-			[formField]="settingsForm.batchIntervalMs"
-			data-po="settings-page-batch-interval"
-		/>
-	</label>
-	@if (isBatchIntervalMsInvalid) {
-		<p
-			id="settings-page-batch-interval-error"
-			class="settings-page-error"
-			i18n
-			role="alert"
-			data-po="settings-page-batch-interval-error"
-		>
-			Enter a whole number from {{ ranges.batchIntervalMs.min }} to {{ ranges.batchIntervalMs.max }}.
-		</p>
-	}
-	<p class="settings-page-hint" i18n>Applying starts a new run and clears the current values and totals.</p>
-	<button class="settings-page-apply" i18n type="submit" data-po="settings-page-apply">Apply</button>
+<header appPageHeader>
+	<h1 appPageTitle i18n data-po="settings-page-title">Producer settings</h1>
+</header>
+
+<form appForm [formRoot]="settingsForm">
+	<label i18n [appFormLabel]="settingsForm.instrumentCount">Instrument count</label>
+
+	<input
+		appFormInput
+		type="number"
+		[formField]="settingsForm.instrumentCount"
+		data-po="settings-page-instrument-count"
+	/>
+
+	<p
+		*appFormIfInvalid="settingsForm.instrumentCount; let field"
+		i18n
+		[appFormError]="field"
+		data-po="settings-page-instrument-count-error"
+	>
+		Enter a whole number from {{ field.min?.() }} to {{ field.max?.() }}.
+	</p>
+
+	<label i18n [appFormLabel]="settingsForm.updatesPerBatch">Updates per batch</label>
+
+	<input
+		appFormInput
+		type="number"
+		[formField]="settingsForm.updatesPerBatch"
+		data-po="settings-page-updates-per-batch"
+	/>
+
+	<p
+		*appFormIfInvalid="settingsForm.updatesPerBatch; let field"
+		i18n
+		[appFormError]="field"
+		data-po="settings-page-updates-per-batch-error"
+	>
+		Enter a whole number from {{ field.min?.() }} to {{ field.max?.() }}.
+	</p>
+
+	<label i18n [appFormLabel]="settingsForm.batchIntervalMs">Batch interval, ms</label>
+
+	<input appFormInput type="number" [formField]="settingsForm.batchIntervalMs" data-po="settings-page-batch-interval" />
+
+	<p
+		*appFormIfInvalid="settingsForm.batchIntervalMs; let field"
+		i18n
+		[appFormError]="field"
+		data-po="settings-page-batch-interval-error"
+	>
+		Enter a whole number from {{ field.min?.() }} to {{ field.max?.() }}.
+	</p>
+
+	<p appNote i18n>Applying starts a new run and clears the current values and totals.</p>
+
+	<button appButton="primary" i18n type="submit" data-po="settings-page-apply">Apply</button>
 </form>

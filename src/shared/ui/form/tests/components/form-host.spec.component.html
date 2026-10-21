@@ -1,0 +1,9 @@
+<form appForm>
+	<label [appFormLabel]="ageForm.age">Age</label>
+
+	<input appFormInput type="number" [formField]="ageForm.age" data-po="form-age" />
+
+	<p *appFormIfInvalid="ageForm.age; let field" [appFormError]="field" data-po="form-age-error">
+		Enter an age from {{ field.min?.() }} to {{ field.max?.() }}.
+	</p>
+</form>

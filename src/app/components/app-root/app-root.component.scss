@@ -1,0 +1,27 @@
+:host {
+	display: flex;
+	flex-direction: column;
+	min-height: 100dvh;
+}
+
+.app-root-header {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--space-md);
+	padding: var(--space-md) var(--space-lg);
+	background: var(--color-surface);
+	border-block-end: 1px solid var(--color-border);
+}
+
+.app-root-brand {
+	margin: 0;
+	font-weight: 600;
+	font-size: var(--font-size-brand);
+}
+
+.app-root-content {
+	flex: 1;
+	padding: var(--space-lg);
+}

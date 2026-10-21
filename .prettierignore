@@ -8,9 +8,10 @@
 /node_modules
 package-lock.json
 
-# IDEs and editors
+# IDEs, editors and local agent tooling
 .idea/
 .vscode/
+.claude/
 
 # System files
 .DS_Store

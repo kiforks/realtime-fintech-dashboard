@@ -1,0 +1,37 @@
+<header class="app-root-header">
+	<p class="app-root-brand" i18n>Realtime Fintech Dashboard</p>
+
+	<nav aria-label="Main" i18n-aria-label>
+		<ul appNavList>
+			<li>
+				<a
+					appNavLink
+					ariaCurrentWhenActive="page"
+					i18n
+					routerLinkActive
+					[routerLink]="routes.Dashboard"
+					data-po="app-root-dashboard-link"
+				>
+					Dashboard
+				</a>
+			</li>
+
+			<li>
+				<a
+					appNavLink
+					ariaCurrentWhenActive="page"
+					i18n
+					routerLinkActive
+					[routerLink]="routes.Settings"
+					data-po="app-root-settings-link"
+				>
+					Settings
+				</a>
+			</li>
+		</ul>
+	</nav>
+</header>
+
+<main class="app-root-content">
+	<router-outlet />
+</main>

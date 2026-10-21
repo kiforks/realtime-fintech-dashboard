@@ -1,1 +1,1 @@
-export type { ProducerSettingsDraft } from './producer-settings-draft.model';
+export type { SettingsDraft } from './settings-draft.model';

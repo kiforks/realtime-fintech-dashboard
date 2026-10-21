@@ -1,0 +1,12 @@
+:host {
+	padding: var(--space-sm) var(--space-md);
+	font-weight: 600;
+	font-size: var(--font-size-small);
+	text-align: start;
+	color: var(--color-text-muted);
+	border-block-end: 1px solid var(--color-border);
+}
+
+:host(.numeric) {
+	text-align: end;
+}
