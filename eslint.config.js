@@ -11,7 +11,6 @@ const I18N_RULE = '@angular-eslint/template/i18n';
 const NON_TRANSLATABLE_ATTRIBUTES = [
 	'appButton',
 	'appTableCell',
-	'appTableHeaderCell',
 	'aria-describedby',
 	'aria-labelledby',
 	'ariaCurrentWhenActive',

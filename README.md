@@ -215,16 +215,16 @@ only their own host. The page picks the native element, so the markup keeps its 
 appearance or the cell type, becomes the host class as it is, and every component keeps its template in its own
 `.html` file.
 
-| Module   | Selectors                                                                                                        | Used on                                         |
-| -------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `page`   | `[appPageHeader]`, `[appPageTitle]`                                                                              | `header`, `h1`                                  |
-| `button` | `[appButton]`, `[appButton="primary"]`                                                                           | `button`, `a`                                   |
-| `badge`  | `[appBadge]`                                                                                                     | `output` — the producer status, announced       |
-| `note`   | `[appNote]`                                                                                                      | `p`                                             |
-| `alert`  | `[appAlert]` with `role="alert"`                                                                                 | `p`                                             |
-| `nav`    | `[appNavList]` (keeps list semantics with `role="list"`), `[appNavLink]` styled from `aria-current`              | `ul`, `a`                                       |
-| `table`  | `[appTableScroll]`, `[appTable]`, `[appTableCaption]`, `[appTableRow]`, `[appTableHeaderCell]`, `[appTableCell]` | `section`, `table`, `caption`, `tr`, `th`, `td` |
-| `form`   | `[appForm]`, `[appFormLabel]`, `[appFormInput]`, `[appFormError]`, `*appFormIfInvalid`                           | `form`, `label`, `input`, `p`                   |
+| Module   | Selectors                                                                                           | Used on                                         |
+| -------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `page`   | `[appPageHeader]`, `[appPageTitle]`                                                                 | `header`, `h1`                                  |
+| `button` | `[appButton]`, `[appButton="primary"]`                                                              | `button`, `a`                                   |
+| `badge`  | `[appBadge]`                                                                                        | `output` — the producer status, announced       |
+| `note`   | `[appNote]`                                                                                         | `p`                                             |
+| `alert`  | `[appAlert]` with `role="alert"`                                                                    | `p`                                             |
+| `nav`    | `[appNavList]` (keeps list semantics with `role="list"`), `[appNavLink]` styled from `aria-current` | `ul`, `a`                                       |
+| `table`  | `[appTableScroll]`, `[appTable]`, `[appTableCaption]`, `[appTableRow]`, `[appTableCell]`            | `section`, `table`, `caption`, `tr`, `th`, `td` |
+| `form`   | `[appForm]`, `[appFormLabel]`, `[appFormInput]`, `[appFormError]`, `*appFormIfInvalid`              | `form`, `label`, `input`, `p`                   |
 
 - The scrolling table region is focusable and named after its caption automatically: the caption takes a generated
   id and the region points `aria-labelledby` at it. Header cells carry `scope`.
