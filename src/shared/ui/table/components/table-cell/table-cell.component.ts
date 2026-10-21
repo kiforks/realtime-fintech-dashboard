@@ -6,7 +6,7 @@ import { TableCellType } from '../../models';
 	selector: 'td[appTableCell], th[appTableCell]',
 	templateUrl: './table-cell.component.html',
 	styleUrl: './table-cell.component.scss',
-	host: { '[class.app-table-cell-numeric]': "type() === 'numeric'" },
+	host: { '[class]': 'type()' },
 })
 export class TableCellComponent {
 	public readonly type = input<TableCellType, TableCellType | ''>('text', {

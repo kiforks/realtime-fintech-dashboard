@@ -6,7 +6,7 @@ import { ButtonAppearance } from '../../models';
 	selector: 'button[appButton]',
 	templateUrl: './button.component.html',
 	styleUrl: './button.component.scss',
-	host: { '[class.app-button-primary]': "appearance() === 'primary'" },
+	host: { '[class]': 'appearance()' },
 })
 export class ButtonComponent {
 	public readonly appearance = input<ButtonAppearance, ButtonAppearance | ''>('secondary', {

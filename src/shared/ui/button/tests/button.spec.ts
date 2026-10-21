@@ -15,11 +15,11 @@ describe(ButtonComponent, () => {
 
 	it('should render the secondary appearance when no appearance is given', async () => {
 		await expect.element(buttonPO.secondary).toHaveTextContent('Pause');
-		await expect.element(buttonPO.secondary).not.toHaveClass('app-button-primary');
+		await expect.element(buttonPO.secondary).toHaveClass('secondary');
 	});
 
 	it('should render the primary appearance on request', async () => {
 		await expect.element(buttonPO.primary).toHaveTextContent('Apply');
-		await expect.element(buttonPO.primary).toHaveClass('app-button-primary');
+		await expect.element(buttonPO.primary).toHaveClass('primary');
 	});
 });
