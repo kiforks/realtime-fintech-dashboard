@@ -59,17 +59,17 @@ describe(AppRootComponent, () => {
 		await expect.element(settingsPagePO.title).toHaveTextContent('Producer settings');
 	});
 
-	it('should leave focus alone on the first page', async () => {
+	it('should leave focus alone on the first page and move it to the page content after each navigation', async () => {
 		await expect.element(appRootPO.content).not.toHaveFocus();
-	});
 
-	it('should move focus to the page content after each navigation', async () => {
-		await appRootPO.openSettings();
+		await appRootPO.openSettingsWithKeyboard();
 
 		await expect.element(appRootPO.content).toHaveFocus();
+		await expect.element(appRootPO.content).toHaveStyle({ outlineStyle: 'none' });
 
-		await appRootPO.openDashboard();
+		await settingsPagePO.apply();
 
+		await expect.element(dashboardPagePO.title).toHaveTextContent('Market dashboard');
 		await expect.element(appRootPO.content).toHaveFocus();
 	});
 

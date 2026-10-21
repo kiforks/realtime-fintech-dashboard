@@ -1,4 +1,4 @@
-import { Locator, page } from 'vitest/browser';
+import { Locator, page, userEvent } from 'vitest/browser';
 
 export class AppRootComponentPO {
 	public get content(): Locator {
@@ -19,5 +19,11 @@ export class AppRootComponentPO {
 
 	public async openSettings(): Promise<void> {
 		await this.settingsLink.click();
+	}
+
+	public async openSettingsWithKeyboard(): Promise<void> {
+		await userEvent.tab();
+		await userEvent.tab();
+		await userEvent.keyboard('{Enter}');
 	}
 }
