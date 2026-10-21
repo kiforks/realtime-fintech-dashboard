@@ -57,7 +57,7 @@
 								"input": "public"
 							}
 						],
-						"styles": ["src/app/scss/styles.scss"],
+						"styles": ["src/app/scss/app-styles.scss"],
 						"stylePreprocessorOptions": {
 							"includePaths": ["src/app/scss"]
 						},
@@ -106,9 +106,11 @@
 				"test": {
 					"builder": "@angular/build:unit-test",
 					"options": {
+						"browsers": ["ChromiumHeadless"],
+						"runnerConfig": "vitest-base.config.js",
 						"coverageExclude": [
 							"src/app/main.ts",
-							"src/**/*.harness.ts",
+							"src/**/tests/**",
 							"src/**/testing.ts",
 							"src/**/mocks/**",
 							"wasm/**",
