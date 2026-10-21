@@ -5,6 +5,6 @@ import { AlertComponent } from '../../components';
 @Component({
 	selector: 'app-alert-host-spec',
 	imports: [AlertComponent],
-	template: '<p appAlert data-po="alert">The feed stopped.</p>',
+	templateUrl: './alert-host.spec.component.html',
 })
 export class AlertHostSpecComponent {}

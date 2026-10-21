@@ -5,7 +5,7 @@ import { FormFieldHelper } from '../../helpers';
 
 @Component({
 	selector: 'input[appFormInput]',
-	template: '',
+	templateUrl: './form-input.component.html',
 	styleUrl: './form-input.component.scss',
 	host: {
 		'[attr.aria-describedby]': 'errorId()',

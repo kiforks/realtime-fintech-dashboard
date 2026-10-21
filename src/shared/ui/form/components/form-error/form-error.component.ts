@@ -5,7 +5,7 @@ import { FormFieldHelper } from '../../helpers';
 
 @Component({
 	selector: 'p[appFormError]',
-	template: '<ng-content />',
+	templateUrl: './form-error.component.html',
 	styleUrl: './form-error.component.scss',
 	host: {
 		role: 'alert',

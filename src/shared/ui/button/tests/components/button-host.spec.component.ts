@@ -5,10 +5,6 @@ import { ButtonComponent } from '../../components';
 @Component({
 	selector: 'app-button-host-spec',
 	imports: [ButtonComponent],
-	template: `
-		<button appButton type="button" data-po="button-secondary">Pause</button>
-
-		<button appButton="primary" type="submit" data-po="button-primary">Apply</button>
-	`,
+	templateUrl: './button-host.spec.component.html',
 })
 export class ButtonHostSpecComponent {}

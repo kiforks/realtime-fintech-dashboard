@@ -122,7 +122,7 @@ export default [
 		},
 	},
 	{
-		files: ['**/*.spec.component.ts*.html'],
+		files: ['**/*.spec.component.html'],
 		rules: {
 			[I18N_RULE]: 'off',
 		},

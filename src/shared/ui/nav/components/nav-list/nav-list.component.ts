@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
 	selector: 'ul[appNavList]',
-	template: '<ng-content />',
+	templateUrl: './nav-list.component.html',
 	styleUrl: './nav-list.component.scss',
 	host: { role: 'list' },
 })

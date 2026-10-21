@@ -4,7 +4,7 @@ import { TableCaptionComponent } from '../table-caption';
 
 @Component({
 	selector: 'section[appTableScroll]',
-	template: '<ng-content />',
+	templateUrl: './table-scroll.component.html',
 	styleUrl: './table-scroll.component.scss',
 	host: {
 		tabindex: '0',

@@ -4,7 +4,7 @@ import { UniqueIdService } from '../../../../services';
 
 @Component({
 	selector: 'caption[appTableCaption]',
-	template: '<ng-content />',
+	templateUrl: './table-caption.component.html',
 	styleUrl: './table-caption.component.scss',
 	host: { '[id]': 'id' },
 })

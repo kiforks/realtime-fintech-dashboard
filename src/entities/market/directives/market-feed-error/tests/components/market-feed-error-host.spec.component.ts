@@ -5,6 +5,6 @@ import { MarketFeedErrorDirective } from '../../market-feed-error.directive';
 @Component({
 	selector: 'app-market-feed-error-host-spec',
 	imports: [MarketFeedErrorDirective],
-	template: '<p *appMarketFeedError="let message" data-po="market-feed-error">Stopped: {{ message }}</p>',
+	templateUrl: './market-feed-error-host.spec.component.html',
 })
 export class MarketFeedErrorHostSpecComponent {}

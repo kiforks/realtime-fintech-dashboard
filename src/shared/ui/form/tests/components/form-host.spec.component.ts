@@ -17,17 +17,7 @@ const MAX_AGE = 99;
 		FormInputComponent,
 		FormLabelComponent,
 	],
-	template: `
-		<form appForm>
-			<label [appFormLabel]="ageForm.age">Age</label>
-
-			<input appFormInput type="number" [formField]="ageForm.age" data-po="form-age" />
-
-			<p *appFormIfInvalid="ageForm.age; let field" [appFormError]="field" data-po="form-age-error">
-				Enter an age from {{ field.min?.() }} to {{ field.max?.() }}.
-			</p>
-		</form>
-	`,
+	templateUrl: './form-host.spec.component.html',
 })
 export class FormHostSpecComponent {
 	protected readonly ageForm = form(signal({ age: 30 }), ({ age }) => {

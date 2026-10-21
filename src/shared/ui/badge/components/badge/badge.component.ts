@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
 	selector: 'output[appBadge]',
-	template: '<ng-content />',
+	templateUrl: './badge.component.html',
 	styleUrl: './badge.component.scss',
 })
 export class BadgeComponent {}

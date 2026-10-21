@@ -3,7 +3,7 @@ import { Field } from '@angular/forms/signals';
 
 @Component({
 	selector: 'label[appFormLabel]',
-	template: '<ng-content />',
+	templateUrl: './form-label.component.html',
 	styleUrl: './form-label.component.scss',
 	host: { '[attr.for]': 'controlId()' },
 })

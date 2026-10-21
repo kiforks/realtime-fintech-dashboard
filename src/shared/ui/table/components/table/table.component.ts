@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
 	selector: 'table[appTable]',
-	template: '<ng-content />',
+	templateUrl: './table.component.html',
 	styleUrl: './table.component.scss',
 })
 export class TableComponent {}

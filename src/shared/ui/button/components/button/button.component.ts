@@ -4,7 +4,7 @@ import { ButtonAppearance } from '../../models';
 
 @Component({
 	selector: 'button[appButton]',
-	template: '<ng-content />',
+	templateUrl: './button.component.html',
 	styleUrl: './button.component.scss',
 	host: { '[class.app-button-primary]': "appearance() === 'primary'" },
 })

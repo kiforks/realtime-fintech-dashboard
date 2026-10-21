@@ -4,7 +4,7 @@ import { TableCellType } from '../../models';
 
 @Component({
 	selector: 'td[appTableCell], th[appTableCell]',
-	template: '<ng-content />',
+	templateUrl: './table-cell.component.html',
 	styleUrl: './table-cell.component.scss',
 	host: { '[class.app-table-cell-numeric]': "type() === 'numeric'" },
 })
