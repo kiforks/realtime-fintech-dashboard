@@ -9,7 +9,7 @@ export class MarketBatchGeneratorMock implements MarketBatchGenerator {
 	public readonly free = vi.fn<() => void>();
 	public readonly nextBatch: Mock<(size: number) => Uint32Array>;
 
-	constructor(nextBatch = (): Uint32Array => MarketBatchMock.encode([new MarketUpdateMock()])) {
+	constructor(nextBatch = (): Uint32Array => MarketBatchMock.encode([MarketUpdateMock.create()])) {
 		this.nextBatch = vi.fn(nextBatch);
 	}
 }

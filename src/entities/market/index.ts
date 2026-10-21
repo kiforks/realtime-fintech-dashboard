@@ -1,5 +1,4 @@
-export { ProducerSettingsConfig } from './configs';
-export { ProducerStatus } from './enums';
-export type { InstrumentMetrics, IntegerRange, MarketWorker, ProducerSettings } from './models';
+export { MarketFeedSettingsConfig } from './configs';
+export { MarketFeedDirective, MarketFeedErrorDirective } from './directives';
+export type { MarketFeedSettings } from './models';
 export { MarketFeedService } from './services';
-export { MARKET_WORKER_FACTORY } from './tokens';

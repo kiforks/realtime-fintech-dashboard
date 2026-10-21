@@ -1,4 +1,4 @@
-export enum ProducerStatus {
+export enum MarketFeedStatus {
 	Failed = 'failed',
 	Paused = 'paused',
 	Running = 'running',

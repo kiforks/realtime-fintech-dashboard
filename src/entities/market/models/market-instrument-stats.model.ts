@@ -1,4 +1,4 @@
-export interface InstrumentStats {
+export interface MarketInstrumentStats {
 	askCents: number | null;
 	askQuantity: number | null;
 	bidCents: number | null;

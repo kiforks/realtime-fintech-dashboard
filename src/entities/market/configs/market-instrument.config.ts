@@ -1,4 +1,4 @@
-export abstract class InstrumentConfig {
+export abstract class MarketInstrumentConfig {
 	public static readonly Symbols: readonly string[] = [
 		'ALFA',
 		'BETA',

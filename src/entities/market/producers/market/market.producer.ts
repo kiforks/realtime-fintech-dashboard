@@ -1,46 +1,55 @@
 import { MarketMetricsHelper } from '../../helpers';
-import { InstrumentStats, MarketBatchGenerator, ProducerCommand, ProducerEvent, ProducerSettings } from '../../models';
+import {
+	MarketBatchGenerator,
+	MarketFeedSettings,
+	MarketInstrumentStats,
+	MarketProducerCommand,
+	MarketProducerEvent,
+	MarketProducerStartCommand,
+} from '../../models';
 
-import { ProducerSettingsConfig } from '../../configs';
+import { MarketFeedSettingsConfig } from '../../configs';
 
 export class MarketProducer {
 	private _generator: MarketBatchGenerator | null = null;
 	private _runId = 0;
-	private _settings: ProducerSettings = ProducerSettingsConfig.Defaults;
-	private _stats: InstrumentStats[] = [];
+	private _settings: MarketFeedSettings = MarketFeedSettingsConfig.Defaults;
+	private _stats: MarketInstrumentStats[] = [];
 	private _timer: ReturnType<typeof setInterval> | null = null;
 
 	constructor(
 		private readonly _createGenerator: (instrumentCount: number) => MarketBatchGenerator,
-		private readonly _post: (event: ProducerEvent) => void
+		private readonly _post: (event: MarketProducerEvent) => void
 	) {}
 
-	public handle(command: ProducerCommand): void {
-		if (command.type === 'start') {
-			this._start(command.runId, command.settings);
-
-			return;
+	public handle(command: MarketProducerCommand): void {
+		switch (command.type) {
+			case 'start':
+				this._start(command);
+				break;
+			case 'pause':
+				this._stop();
+				break;
+			case 'resume':
+				this._schedule();
+				break;
+			default:
+				break;
 		}
-
-		if (command.type === 'pause') {
-			this._stop();
-
-			return;
-		}
-
-		this._schedule();
 	}
 
-	private _start(runId: number, settings: ProducerSettings): void {
+	private _start({ runId, settings }: MarketProducerStartCommand): void {
+		const { instrumentCount } = settings;
+
 		this._stop();
 		this._generator?.free();
 		this._generator = null;
 		this._runId = runId;
 		this._settings = settings;
-		this._stats = MarketMetricsHelper.empty(settings.instrumentCount);
+		this._stats = MarketMetricsHelper.empty(instrumentCount);
 
 		try {
-			this._generator = this._createGenerator(settings.instrumentCount);
+			this._generator = this._createGenerator(instrumentCount);
 		} catch (error) {
 			this._fail(error);
 
@@ -83,7 +92,8 @@ export class MarketProducer {
 	}
 
 	private _fail(error: unknown): void {
-		const message = error instanceof Error ? error.message : String(error);
+		const isDescribed = error instanceof Error && error.message !== '';
+		const message = isDescribed ? error.message : String(error);
 
 		this._post({ message, runId: this._runId, type: 'error' });
 	}

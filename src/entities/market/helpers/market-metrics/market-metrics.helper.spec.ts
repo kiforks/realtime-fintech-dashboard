@@ -1,43 +1,29 @@
 import { MarketMetricsHelper } from './market-metrics.helper';
 
-import { ProducerSettingsConfig } from '../../configs';
-import { InstrumentStatsMock, MarketBatchMock, MarketUpdateMock } from '../../mocks';
-
-const workedExampleBatch = MarketBatchMock.encode([
-	new MarketUpdateMock({ askCents: 10000, bidCents: 9996, priceCents: 10000, tradeQuantity: 10 }),
-	new MarketUpdateMock(),
-]);
+import { MarketFeedSettingsConfig } from '../../configs';
+import { MarketBatchMock, MarketInstrumentMetricsMock, MarketInstrumentStatsMock, MarketUpdateMock } from '../../mocks';
 
 describe(MarketMetricsHelper, () => {
+	let workedExampleBatch: Uint32Array;
+
+	beforeEach(() => {
+		workedExampleBatch = MarketBatchMock.encode([
+			MarketUpdateMock.create({ askCents: 10000, bidCents: 9996, priceCents: 10000, tradeQuantity: 10 }),
+			MarketUpdateMock.create(),
+		]);
+	});
+
 	describe('empty', () => {
 		it('should start every instrument with unavailable quotes and zero totals', () => {
 			expect(MarketMetricsHelper.empty(2)).toStrictEqual([
-				{
-					askCents: null,
-					askQuantity: null,
-					bidCents: null,
-					bidQuantity: null,
-					lastPriceCents: null,
-					notionalCents: 0,
-					symbol: 'ALFA',
-					volume: 0,
-				},
-				{
-					askCents: null,
-					askQuantity: null,
-					bidCents: null,
-					bidQuantity: null,
-					lastPriceCents: null,
-					notionalCents: 0,
-					symbol: 'BETA',
-					volume: 0,
-				},
+				MarketInstrumentStatsMock.empty('ALFA'),
+				MarketInstrumentStatsMock.empty('BETA'),
 			]);
 		});
 
 		it('should give every instrument the settings allow its own symbol', () => {
-			const { max } = ProducerSettingsConfig.InstrumentCount;
-			const symbols = new Set(MarketMetricsHelper.empty(max).map(stats => stats.symbol));
+			const { max } = MarketFeedSettingsConfig.Ranges.instrumentCount;
+			const symbols = new Set(MarketMetricsHelper.empty(max).map(({ symbol }) => symbol));
 
 			expect(symbols.size).toBe(max);
 		});
@@ -46,23 +32,14 @@ describe(MarketMetricsHelper, () => {
 	describe('accumulate', () => {
 		it('should keep the latest quote and count every trade of the worked example', () => {
 			expect(MarketMetricsHelper.accumulate(MarketMetricsHelper.empty(1), workedExampleBatch)).toStrictEqual([
-				{
-					askCents: 10200,
-					askQuantity: 400,
-					bidCents: 10196,
-					bidQuantity: 600,
-					lastPriceCents: 10200,
-					notionalCents: 406000,
-					symbol: 'ALFA',
-					volume: 40,
-				},
+				MarketInstrumentStatsMock.create(),
 			]);
 		});
 
 		it('should keep the totals and quotes of each instrument apart when their trades interleave', () => {
 			const interleavedBatch = MarketBatchMock.encode([
-				new MarketUpdateMock({ askCents: 10000, bidCents: 9996, priceCents: 10000, tradeQuantity: 10 }),
-				new MarketUpdateMock({
+				MarketUpdateMock.create({ askCents: 10000, bidCents: 9996, priceCents: 10000, tradeQuantity: 10 }),
+				MarketUpdateMock.create({
 					askCents: 20000,
 					askQuantity: 300,
 					bidCents: 19990,
@@ -71,21 +48,12 @@ describe(MarketMetricsHelper, () => {
 					priceCents: 20000,
 					tradeQuantity: 5,
 				}),
-				new MarketUpdateMock(),
+				MarketUpdateMock.create(),
 			]);
 
 			expect(MarketMetricsHelper.accumulate(MarketMetricsHelper.empty(3), interleavedBatch)).toStrictEqual([
-				{
-					askCents: 10200,
-					askQuantity: 400,
-					bidCents: 10196,
-					bidQuantity: 600,
-					lastPriceCents: 10200,
-					notionalCents: 406000,
-					symbol: 'ALFA',
-					volume: 40,
-				},
-				{
+				MarketInstrumentStatsMock.create(),
+				MarketInstrumentStatsMock.create({
 					askCents: 20000,
 					askQuantity: 300,
 					bidCents: 19990,
@@ -94,28 +62,19 @@ describe(MarketMetricsHelper, () => {
 					notionalCents: 100000,
 					symbol: 'BETA',
 					volume: 5,
-				},
-				{
-					askCents: null,
-					askQuantity: null,
-					bidCents: null,
-					bidQuantity: null,
-					lastPriceCents: null,
-					notionalCents: 0,
-					symbol: 'GAMA',
-					volume: 0,
-				},
+				}),
+				MarketInstrumentStatsMock.empty('GAMA'),
 			]);
 		});
 
 		it('should keep adding to the totals across batches', () => {
-			const firstBatch = MarketBatchMock.encode([new MarketUpdateMock({ priceCents: 10000, tradeQuantity: 10 })]);
-			const secondBatch = MarketBatchMock.encode([new MarketUpdateMock()]);
+			const firstBatch = MarketBatchMock.encode([MarketUpdateMock.create({ priceCents: 10000, tradeQuantity: 10 })]);
+			const secondBatch = MarketBatchMock.encode([MarketUpdateMock.create()]);
 			const afterFirstBatch = MarketMetricsHelper.accumulate(MarketMetricsHelper.empty(1), firstBatch);
 
-			expect(MarketMetricsHelper.accumulate(afterFirstBatch, secondBatch)).toStrictEqual(
-				MarketMetricsHelper.accumulate(MarketMetricsHelper.empty(1), workedExampleBatch)
-			);
+			expect(MarketMetricsHelper.accumulate(afterFirstBatch, secondBatch)).toStrictEqual([
+				MarketInstrumentStatsMock.create(),
+			]);
 		});
 
 		it('should not change the stats it receives', () => {
@@ -123,63 +82,52 @@ describe(MarketMetricsHelper, () => {
 
 			MarketMetricsHelper.accumulate(stats, workedExampleBatch);
 
-			expect(stats).toStrictEqual(MarketMetricsHelper.empty(1));
+			expect(stats).toStrictEqual([MarketInstrumentStatsMock.empty('ALFA')]);
 		});
 	});
 
 	describe('toMetrics', () => {
 		it('should derive the metrics of the worked example', () => {
-			expect(MarketMetricsHelper.toMetrics(new InstrumentStatsMock())).toStrictEqual({
-				imbalance: 0.2,
-				lastPriceCents: 10200,
-				spreadCents: 4,
-				symbol: 'ALFA',
-				volume: 40,
-				vwapCents: 10150,
-			});
+			expect(MarketMetricsHelper.toMetrics(MarketInstrumentStatsMock.create())).toStrictEqual(
+				MarketInstrumentMetricsMock.create()
+			);
 		});
 
 		it('should keep fractional cents in the VWAP for the display to round', () => {
-			expect(MarketMetricsHelper.toMetrics(new InstrumentStatsMock({ notionalCents: 20001, volume: 2 }))).toStrictEqual(
-				{
-					imbalance: 0.2,
-					lastPriceCents: 10200,
-					spreadCents: 4,
-					symbol: 'ALFA',
-					volume: 2,
-					vwapCents: 10000.5,
-				}
+			const stats = MarketInstrumentStatsMock.create({ notionalCents: 20001, volume: 2 });
+
+			expect(MarketMetricsHelper.toMetrics(stats)).toStrictEqual(
+				MarketInstrumentMetricsMock.create({ volume: 2, vwapCents: 10000.5 })
 			);
 		});
 
 		it('should report unavailable metrics and zero volume before any data arrives', () => {
-			const [emptyStats] = MarketMetricsHelper.empty(1);
-
-			expect(MarketMetricsHelper.toMetrics(emptyStats)).toStrictEqual({
-				imbalance: null,
-				lastPriceCents: null,
-				spreadCents: null,
-				symbol: 'ALFA',
-				volume: 0,
-				vwapCents: null,
-			});
+			expect(MarketMetricsHelper.toMetrics(MarketInstrumentStatsMock.empty('ALFA'))).toStrictEqual(
+				MarketInstrumentMetricsMock.empty('ALFA')
+			);
 		});
+	});
 
-		it('should report an unavailable imbalance when both sides of the book are empty', () => {
-			const metrics = MarketMetricsHelper.toMetrics(new InstrumentStatsMock({ askQuantity: 0, bidQuantity: 0 }));
-
-			expect(metrics.imbalance).toBeNull();
-		});
-
+	describe('imbalance', () => {
 		it.each([
+			{ askQuantity: 400, bidQuantity: 600, imbalance: 0.2 },
 			{ askQuantity: 400, bidQuantity: 0, imbalance: -1 },
 			{ askQuantity: 0, bidQuantity: 600, imbalance: 1 },
 		])(
-			'should report an imbalance of $imbalance when only one side of the book has quantity',
+			'should report an imbalance of $imbalance for $bidQuantity bid and $askQuantity ask',
 			({ askQuantity, bidQuantity, imbalance }) => {
-				const metrics = MarketMetricsHelper.toMetrics(new InstrumentStatsMock({ askQuantity, bidQuantity }));
+				expect(MarketMetricsHelper.imbalance(bidQuantity, askQuantity)).toBe(imbalance);
+			}
+		);
 
-				expect(metrics.imbalance).toBe(imbalance);
+		it.each([
+			{ askQuantity: 0, bidQuantity: 0 },
+			{ askQuantity: null, bidQuantity: 600 },
+			{ askQuantity: 400, bidQuantity: null },
+		])(
+			'should report an unavailable imbalance for $bidQuantity bid and $askQuantity ask',
+			({ askQuantity, bidQuantity }) => {
+				expect(MarketMetricsHelper.imbalance(bidQuantity, askQuantity)).toBeNull();
 			}
 		);
 	});

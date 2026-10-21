@@ -1,52 +1,26 @@
-import { MarketBatchGenerator, ProducerEvent, ProducerSettings } from '../../models';
+import { MarketBatchGenerator, MarketFeedSettings, MarketInstrumentStats, MarketProducerEvent } from '../../models';
 
-import { MarketBatchGeneratorMock } from '../../mocks';
-import { MarketProducer } from './market-producer';
+import { MarketBatchGeneratorMock, MarketFeedSettingsMock, MarketInstrumentStatsMock } from '../../mocks';
+import { MarketProducer } from './market.producer';
 
 import type { Mock } from 'vitest';
 
-const BATCH_INTERVAL_MS = 500;
-const UPDATES_PER_BATCH = 100;
-
-const settings: ProducerSettings = {
-	batchIntervalMs: BATCH_INTERVAL_MS,
-	instrumentCount: 2,
-	updatesPerBatch: UPDATES_PER_BATCH,
-};
-
-const alfaStats = (trades: number) => ({
-	askCents: 10200,
-	askQuantity: 400,
-	bidCents: 10196,
-	bidQuantity: 600,
-	lastPriceCents: 10200,
-	notionalCents: 306000 * trades,
-	symbol: 'ALFA',
-	volume: 30 * trades,
-});
-
-const emptyBetaStats = {
-	askCents: null,
-	askQuantity: null,
-	bidCents: null,
-	bidQuantity: null,
-	lastPriceCents: null,
-	notionalCents: 0,
-	symbol: 'BETA',
-	volume: 0,
-};
+const tradedAlfaStats = (batches: number): MarketInstrumentStats =>
+	MarketInstrumentStatsMock.create({ notionalCents: 306000 * batches, volume: 30 * batches });
 
 describe(MarketProducer, () => {
+	let settings: MarketFeedSettings;
 	let generator: MarketBatchGeneratorMock;
 	let createGenerator: Mock<(instrumentCount: number) => MarketBatchGenerator>;
-	let post: Mock<(event: ProducerEvent) => void>;
+	let post: Mock<(event: MarketProducerEvent) => void>;
 	let producer: MarketProducer;
 
 	beforeEach(() => {
 		vi.useFakeTimers();
+		settings = MarketFeedSettingsMock.create();
 		generator = new MarketBatchGeneratorMock();
 		createGenerator = vi.fn<(instrumentCount: number) => MarketBatchGenerator>(() => generator);
-		post = vi.fn<(event: ProducerEvent) => void>();
+		post = vi.fn<(event: MarketProducerEvent) => void>();
 		producer = new MarketProducer(createGenerator, post);
 	});
 
@@ -55,39 +29,52 @@ describe(MarketProducer, () => {
 	});
 
 	it('should generate one batch of the requested size per interval and post cumulative stats', () => {
-		producer.handle({ runId: 1, settings, type: 'start' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS * 3);
+		const { batchIntervalMs, instrumentCount, updatesPerBatch } = settings;
 
-		expect(createGenerator).toHaveBeenCalledWith(settings.instrumentCount);
+		producer.handle({ runId: 1, settings, type: 'start' });
+		vi.advanceTimersByTime(batchIntervalMs * 3);
+
+		expect(createGenerator).toHaveBeenCalledWith(instrumentCount);
 		expect(generator.nextBatch).toHaveBeenCalledTimes(3);
-		expect(generator.nextBatch).toHaveBeenCalledWith(UPDATES_PER_BATCH);
-		expect(post).toHaveBeenLastCalledWith({ runId: 1, stats: [alfaStats(3), emptyBetaStats], type: 'snapshot' });
+		expect(generator.nextBatch).toHaveBeenCalledWith(updatesPerBatch);
+		expect(post).toHaveBeenLastCalledWith({
+			runId: 1,
+			stats: [tradedAlfaStats(3), MarketInstrumentStatsMock.empty('BETA')],
+			type: 'snapshot',
+		});
 	});
 
 	it('should stop generating while paused and resume without catching up on the paused time', () => {
+		const { batchIntervalMs } = settings;
+
 		producer.handle({ runId: 1, settings, type: 'start' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS);
+		vi.advanceTimersByTime(batchIntervalMs);
 		producer.handle({ type: 'pause' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS * 10);
+		vi.advanceTimersByTime(batchIntervalMs * 10);
 
 		expect(generator.nextBatch).toHaveBeenCalledTimes(1);
 
 		producer.handle({ type: 'resume' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS);
+		vi.advanceTimersByTime(batchIntervalMs);
 
 		expect(generator.nextBatch).toHaveBeenCalledTimes(2);
-		expect(post).toHaveBeenLastCalledWith({ runId: 1, stats: [alfaStats(2), emptyBetaStats], type: 'snapshot' });
+		expect(post).toHaveBeenLastCalledWith({
+			runId: 1,
+			stats: [tradedAlfaStats(2), MarketInstrumentStatsMock.empty('BETA')],
+			type: 'snapshot',
+		});
 	});
 
 	it('should keep a single timer when resumed while already running', () => {
 		producer.handle({ runId: 1, settings, type: 'start' });
 		producer.handle({ type: 'resume' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS);
+		vi.advanceTimersByTime(settings.batchIntervalMs);
 
 		expect(generator.nextBatch).toHaveBeenCalledTimes(1);
 	});
 
 	it('should free the previous generator and start from empty totals on a new run', () => {
+		const { batchIntervalMs } = settings;
 		const nextGenerator = new MarketBatchGeneratorMock();
 		const twoRunProducer = new MarketProducer(
 			vi
@@ -98,22 +85,30 @@ describe(MarketProducer, () => {
 		);
 
 		twoRunProducer.handle({ runId: 1, settings, type: 'start' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS * 2);
+		vi.advanceTimersByTime(batchIntervalMs * 2);
 		twoRunProducer.handle({ runId: 2, settings, type: 'start' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS);
+		vi.advanceTimersByTime(batchIntervalMs);
 
 		expect(generator.free).toHaveBeenCalledTimes(1);
 		expect(generator.nextBatch).toHaveBeenCalledTimes(2);
-		expect(post).toHaveBeenLastCalledWith({ runId: 2, stats: [alfaStats(1), emptyBetaStats], type: 'snapshot' });
+		expect(post).toHaveBeenLastCalledWith({
+			runId: 2,
+			stats: [tradedAlfaStats(1), MarketInstrumentStatsMock.empty('BETA')],
+			type: 'snapshot',
+		});
 	});
 
 	it('should start generating for a new run even when the previous run was paused', () => {
 		producer.handle({ runId: 1, settings, type: 'start' });
 		producer.handle({ type: 'pause' });
 		producer.handle({ runId: 2, settings, type: 'start' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS);
+		vi.advanceTimersByTime(settings.batchIntervalMs);
 
-		expect(post).toHaveBeenLastCalledWith({ runId: 2, stats: [alfaStats(1), emptyBetaStats], type: 'snapshot' });
+		expect(post).toHaveBeenLastCalledWith({
+			runId: 2,
+			stats: [tradedAlfaStats(1), MarketInstrumentStatsMock.empty('BETA')],
+			type: 'snapshot',
+		});
 	});
 
 	it('should report an error and generate nothing when the generator cannot be created', () => {
@@ -123,7 +118,7 @@ describe(MarketProducer, () => {
 
 		failingProducer.handle({ runId: 1, settings, type: 'start' });
 		failingProducer.handle({ type: 'resume' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS * 2);
+		vi.advanceTimersByTime(settings.batchIntervalMs * 2);
 
 		expect(post).toHaveBeenCalledTimes(1);
 		expect(post).toHaveBeenCalledWith({
@@ -140,9 +135,19 @@ describe(MarketProducer, () => {
 		const failingProducer = new MarketProducer(() => failingGenerator, post);
 
 		failingProducer.handle({ runId: 1, settings, type: 'start' });
-		vi.advanceTimersByTime(BATCH_INTERVAL_MS * 3);
+		vi.advanceTimersByTime(settings.batchIntervalMs * 3);
 
 		expect(failingGenerator.nextBatch).toHaveBeenCalledTimes(1);
 		expect(post).toHaveBeenCalledWith({ message: 'memory access out of bounds', runId: 1, type: 'error' });
+	});
+
+	it('should still explain a failure that comes without a message', () => {
+		const failingProducer = new MarketProducer(() => {
+			throw new Error();
+		}, post);
+
+		failingProducer.handle({ runId: 1, settings, type: 'start' });
+
+		expect(post).toHaveBeenCalledWith({ message: 'Error', runId: 1, type: 'error' });
 	});
 });

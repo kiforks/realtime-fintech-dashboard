@@ -1,17 +1,10 @@
-import { InstrumentMetrics, InstrumentStats } from '../../models';
+import { MarketInstrumentMetrics, MarketInstrumentStats } from '../../models';
 
-import { InstrumentConfig, MarketUpdateLayoutConfig } from '../../configs';
-
-const toImbalance = (bidQuantity: number | null, askQuantity: number | null): number | null => {
-	const hasBook = bidQuantity !== null && askQuantity !== null;
-	const depth = hasBook ? bidQuantity + askQuantity : 0;
-
-	return hasBook && depth > 0 ? (bidQuantity - askQuantity) / depth : null;
-};
+import { MarketInstrumentConfig, MarketUpdateLayoutConfig } from '../../configs';
 
 export abstract class MarketMetricsHelper {
-	public static empty(instrumentCount: number): InstrumentStats[] {
-		return InstrumentConfig.Symbols.slice(0, instrumentCount).map(symbol => ({
+	public static empty(instrumentCount: number): MarketInstrumentStats[] {
+		return MarketInstrumentConfig.Symbols.slice(0, instrumentCount).map(symbol => ({
 			askCents: null,
 			askQuantity: null,
 			bidCents: null,
@@ -23,7 +16,7 @@ export abstract class MarketMetricsHelper {
 		}));
 	}
 
-	public static accumulate(stats: readonly InstrumentStats[], batch: Uint32Array): InstrumentStats[] {
+	public static accumulate(stats: readonly MarketInstrumentStats[], batch: Uint32Array): MarketInstrumentStats[] {
 		const accumulated = stats.map(instrumentStats => ({ ...instrumentStats }));
 
 		for (let offset = 0; offset < batch.length; offset += MarketUpdateLayoutConfig.Stride) {
@@ -43,18 +36,25 @@ export abstract class MarketMetricsHelper {
 		return accumulated;
 	}
 
-	public static toMetrics(stats: InstrumentStats): InstrumentMetrics {
+	public static toMetrics(stats: MarketInstrumentStats): MarketInstrumentMetrics {
 		const { askCents, askQuantity, bidCents, bidQuantity, lastPriceCents, notionalCents, symbol, volume } = stats;
 		const hasQuote = askCents !== null && bidCents !== null;
 		const hasTrades = volume > 0;
 
 		return {
-			imbalance: toImbalance(bidQuantity, askQuantity),
+			imbalance: MarketMetricsHelper.imbalance(bidQuantity, askQuantity),
 			lastPriceCents,
 			spreadCents: hasQuote ? askCents - bidCents : null,
 			symbol,
 			volume,
 			vwapCents: hasTrades ? notionalCents / volume : null,
 		};
+	}
+
+	public static imbalance(bidQuantity: number | null, askQuantity: number | null): number | null {
+		const hasBook = bidQuantity !== null && askQuantity !== null;
+		const depth = hasBook ? bidQuantity + askQuantity : 0;
+
+		return hasBook && depth > 0 ? (bidQuantity - askQuantity) / depth : null;
 	}
 }
