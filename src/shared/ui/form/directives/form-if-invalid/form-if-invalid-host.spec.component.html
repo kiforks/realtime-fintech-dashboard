@@ -1,0 +1,5 @@
+<input type="number" [formField]="ageForm.age" data-po="form-if-invalid-input" />
+
+<p *appFormIfInvalid="ageForm.age; let field" data-po="form-if-invalid-error">
+	Enter an age from {{ field.min?.() }} to {{ field.max?.() }}.
+</p>

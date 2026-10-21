@@ -110,7 +110,8 @@
 						"runnerConfig": "vitest-base.config.js",
 						"coverageExclude": [
 							"src/app/main.ts",
-							"src/**/tests/**",
+							"src/**/*.spec.component.*",
+							"src/**/*.po.ts",
 							"src/**/testing.ts",
 							"src/**/mocks/**",
 							"wasm/**",

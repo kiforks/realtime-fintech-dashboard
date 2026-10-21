@@ -1,0 +1,3 @@
+<input appFormInput type="number" [formField]="ageForm.age" data-po="form-input" />
+
+<p *appFormIfInvalid="ageForm.age; let field" [appFormError]="field">Enter an age from 18 to 99.</p>
