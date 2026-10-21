@@ -33,13 +33,13 @@ describe(MarketGeneratorFactory, () => {
 	});
 
 	it('should return exactly the requested number of updates in each batch', () => {
-		const lengths = [0, 1, 1000].map(size => generator.nextBatch(size).length);
+		const lengths = [1, 1000].map(size => generator.nextBatch(size).length);
 
-		expect(lengths).toStrictEqual([0, MarketUpdateLayoutConfig.Stride, 1000 * MarketUpdateLayoutConfig.Stride]);
+		expect(lengths).toStrictEqual([MarketUpdateLayoutConfig.Stride, 1000 * MarketUpdateLayoutConfig.Stride]);
 	});
 
 	it('should keep the bid positive and below the ask and trade at one of the quotes', () => {
-		const updates = MarketBatchMock.decode(generator.nextBatch(10_000));
+		const updates = Array.from({ length: 10 }, () => MarketBatchMock.decode(generator.nextBatch(1000))).flat();
 		const violations = updates.filter(update => breaksAnInvariant(update, instrumentCount));
 
 		expect(violations).toStrictEqual([]);
@@ -68,6 +68,11 @@ describe(MarketGeneratorFactory, () => {
 				}),
 			])
 		);
+	});
+
+	it('should reject a batch size outside the allowed range', () => {
+		expect(() => generator.nextBatch(0)).toThrow('batch size must be between 1 and 1000, got 0');
+		expect(() => generator.nextBatch(1001)).toThrow('batch size must be between 1 and 1000, got 1001');
 	});
 
 	it('should reject an instrument count outside the allowed range', () => {

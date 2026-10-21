@@ -3,6 +3,7 @@ use rand_pcg::Pcg32;
 
 pub const STRIDE: usize = 7;
 pub const MAX_INSTRUMENTS: u32 = 50;
+pub const MAX_BATCH_SIZE: u32 = 1_000;
 
 const MIN_MID_CENTS: i64 = 1_000;
 const MAX_MID_CENTS: i64 = 100_000;
@@ -106,14 +107,20 @@ impl Market {
         Ok(Self { rng, instruments })
     }
 
-    pub fn next_batch(&mut self, size: u32) -> Vec<u32> {
+    pub fn next_batch(&mut self, size: u32) -> Result<Vec<u32>, String> {
+        if !(1..=MAX_BATCH_SIZE).contains(&size) {
+            return Err(format!(
+                "batch size must be between 1 and {MAX_BATCH_SIZE}, got {size}"
+            ));
+        }
+
         let mut batch = Vec::with_capacity(size as usize * STRIDE);
 
         for _ in 0..size {
             batch.extend_from_slice(&self.next_update().to_fields());
         }
 
-        batch
+        Ok(batch)
     }
 
     fn next_update(&mut self) -> MarketUpdate {
@@ -195,11 +202,11 @@ mod tests {
     fn returns_exactly_the_requested_number_of_updates() {
         let mut market = Market::new(MAX_INSTRUMENTS, SEED).unwrap();
 
-        let lengths: Vec<usize> = [0, 1, 100, 1_000]
-            .map(|size| market.next_batch(size).len())
+        let lengths: Vec<usize> = [1, 100, MAX_BATCH_SIZE]
+            .map(|size| market.next_batch(size).unwrap().len())
             .to_vec();
 
-        assert_eq!(lengths, vec![0, STRIDE, 100 * STRIDE, 1_000 * STRIDE]);
+        assert_eq!(lengths, vec![STRIDE, 100 * STRIDE, 1_000 * STRIDE]);
     }
 
     #[test]
@@ -208,7 +215,7 @@ mod tests {
             .flat_map(|seed| {
                 let mut market = Market::new(MAX_INSTRUMENTS, seed).unwrap();
 
-                decode(&market.next_batch(200_000))
+                (0..200_000).map(move |_| market.next_update())
             })
             .filter(|update| breaks_an_invariant(update, MAX_INSTRUMENTS))
             .collect();
@@ -244,11 +251,11 @@ mod tests {
         let mut split = Market::new(MAX_INSTRUMENTS, SEED).unwrap();
         let mut whole = Market::new(MAX_INSTRUMENTS, SEED).unwrap();
 
-        let mut split_batches = split.next_batch(500);
+        let mut split_batches = split.next_batch(500).unwrap();
 
-        split_batches.extend(split.next_batch(500));
+        split_batches.extend(split.next_batch(500).unwrap());
 
-        assert_eq!(split_batches, whole.next_batch(1_000));
+        assert_eq!(split_batches, whole.next_batch(1_000).unwrap());
     }
 
     #[test]
@@ -256,7 +263,10 @@ mod tests {
         let mut first = Market::new(5, SEED).unwrap();
         let mut second = Market::new(5, SEED).unwrap();
 
-        assert_eq!(first.next_batch(100), second.next_batch(100));
+        assert_eq!(
+            first.next_batch(100).unwrap(),
+            second.next_batch(100).unwrap()
+        );
     }
 
     #[test]
@@ -264,7 +274,10 @@ mod tests {
         let mut first = Market::new(5, 1).unwrap();
         let mut second = Market::new(5, 2).unwrap();
 
-        assert_ne!(first.next_batch(100), second.next_batch(100));
+        assert_ne!(
+            first.next_batch(100).unwrap(),
+            second.next_batch(100).unwrap()
+        );
     }
 
     #[test]
@@ -289,9 +302,30 @@ mod tests {
     }
 
     #[test]
+    fn rejects_batch_sizes_outside_the_allowed_range() {
+        let mut market = Market::new(MAX_INSTRUMENTS, SEED).unwrap();
+
+        let errors: Vec<Option<String>> = [0, 1, MAX_BATCH_SIZE, MAX_BATCH_SIZE + 1]
+            .map(|size| market.next_batch(size).err())
+            .to_vec();
+
+        assert_eq!(
+            errors,
+            vec![
+                Some(String::from("batch size must be between 1 and 1000, got 0")),
+                None,
+                None,
+                Some(String::from(
+                    "batch size must be between 1 and 1000, got 1001"
+                )),
+            ]
+        );
+    }
+
+    #[test]
     fn selects_every_instrument_and_may_repeat_one_within_a_batch() {
         let mut market = Market::new(MAX_INSTRUMENTS, SEED).unwrap();
-        let instruments: Vec<u32> = decode(&market.next_batch(1_000))
+        let instruments: Vec<u32> = decode(&market.next_batch(1_000).unwrap())
             .iter()
             .map(|update| update.instrument)
             .collect();
@@ -328,8 +362,8 @@ mod tests {
         market.instruments[0].bid_quantity = 0;
         market.instruments[0].ask_quantity = 0;
 
-        let empty_books = decode(&market.next_batch(100_000))
-            .iter()
+        let empty_books = (0..100_000)
+            .map(|_| market.next_update())
             .filter(|update| update.bid_quantity == 0 && update.ask_quantity == 0)
             .count();
 
