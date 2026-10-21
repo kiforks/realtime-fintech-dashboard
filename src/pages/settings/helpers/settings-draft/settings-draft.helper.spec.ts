@@ -1,10 +1,10 @@
-import { ProducerSettingsHelper } from './producer-settings.helper';
+import { SettingsDraftHelper } from './settings-draft.helper';
 
-describe(ProducerSettingsHelper, () => {
-	describe('fromDraft', () => {
-		it('should turn a complete draft into producer settings', () => {
+describe(SettingsDraftHelper, () => {
+	describe('toFeedSettings', () => {
+		it('should turn a complete draft into feed settings', () => {
 			expect(
-				ProducerSettingsHelper.fromDraft({ batchIntervalMs: 50, instrumentCount: 10, updatesPerBatch: 1000 })
+				SettingsDraftHelper.toFeedSettings({ batchIntervalMs: 50, instrumentCount: 10, updatesPerBatch: 1000 })
 			).toStrictEqual({ batchIntervalMs: 50, instrumentCount: 10, updatesPerBatch: 1000 });
 		});
 
@@ -13,7 +13,7 @@ describe(ProducerSettingsHelper, () => {
 			{ batchIntervalMs: 50, instrumentCount: null, updatesPerBatch: 1000 },
 			{ batchIntervalMs: 50, instrumentCount: 10, updatesPerBatch: null },
 		])('should reject a draft with an empty field', draft => {
-			expect(ProducerSettingsHelper.fromDraft(draft)).toBeNull();
+			expect(SettingsDraftHelper.toFeedSettings(draft)).toBeNull();
 		});
 	});
 });

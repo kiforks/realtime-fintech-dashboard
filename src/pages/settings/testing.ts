@@ -1,1 +1,1 @@
-export { SettingsPageHarness } from './components/settings-page/settings-page.component.harness';
+export { SettingsPageComponentPO } from './components/settings-page/tests/settings-page.component.po';

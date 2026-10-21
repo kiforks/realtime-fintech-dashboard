@@ -1,13 +1,13 @@
-import { ProducerSettingsDraft } from '../../models';
+import { SettingsDraft } from '../../models';
 
-import { ProducerSettings } from '~/entities/market';
+import { MarketFeedSettings } from '~/entities/market';
 
-export abstract class ProducerSettingsHelper {
-	public static fromDraft({
+export abstract class SettingsDraftHelper {
+	public static toFeedSettings({
 		batchIntervalMs,
 		instrumentCount,
 		updatesPerBatch,
-	}: ProducerSettingsDraft): ProducerSettings | null {
+	}: SettingsDraft): MarketFeedSettings | null {
 		const isComplete = batchIntervalMs !== null && instrumentCount !== null && updatesPerBatch !== null;
 
 		return isComplete ? { batchIntervalMs, instrumentCount, updatesPerBatch } : null;
