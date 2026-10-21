@@ -1,0 +1,23 @@
+:host {
+	display: block;
+	padding: var(--space-2) var(--space-4);
+	color: var(--color-text-muted);
+	text-decoration: none;
+	border-radius: var(--radius);
+
+	&:hover {
+		color: var(--color-text);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 2px;
+	}
+
+	&[aria-current='page'] {
+		font-weight: 600;
+		color: var(--color-accent);
+		background: var(--color-accent-soft);
+		box-shadow: inset 0 -2px 0 var(--color-accent);
+	}
+}

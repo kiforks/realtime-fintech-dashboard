@@ -1,0 +1,16 @@
+import { Component, input } from '@angular/core';
+
+import { TableCellType } from '../../models';
+
+@Component({
+	selector: 'td[appTableCell], th[appTableCell]',
+	template: '<ng-content />',
+	styleUrl: './table-cell.component.scss',
+	host: { '[class.app-table-cell-numeric]': "type() === 'numeric'" },
+})
+export class TableCellComponent {
+	public readonly type = input<TableCellType, TableCellType | ''>('text', {
+		alias: 'appTableCell',
+		transform: type => (type === '' ? 'text' : type),
+	});
+}

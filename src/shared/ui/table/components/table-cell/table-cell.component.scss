@@ -1,0 +1,8 @@
+:host {
+	padding: var(--space-2) var(--space-4);
+	text-align: start;
+}
+
+:host(.app-table-cell-numeric) {
+	text-align: end;
+}
