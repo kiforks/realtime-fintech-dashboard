@@ -2,9 +2,6 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { delimiter, dirname } from 'node:path';
 import process from 'node:process';
 
-const RUSTUP_HINT =
-	'Install Rust through rustup (https://rustup.rs, or `brew install rustup` on macOS) and run the command again.';
-
 const isOnPath = command => spawnSync(command, ['--version'], { stdio: 'ignore' }).status === 0;
 
 const findToolchainBin = () => {
@@ -31,7 +28,9 @@ const [command, ...commandArgs] = process.argv.slice(2);
 const path = resolvePath();
 
 if (path === null) {
-	console.error(`Cargo is not on PATH and rustup cannot locate it. ${RUSTUP_HINT}`);
+	console.error(
+		'Cargo is not on PATH and rustup cannot locate it. Install Rust through rustup (https://rustup.rs, or `brew install rustup` on macOS) and run the command again.'
+	);
 	process.exit(1);
 }
 

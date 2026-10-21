@@ -114,7 +114,7 @@ export default [
 	},
 	...kiforAngularTemplate.map(withNonTranslatableAttributes),
 	...kiforVitest,
-	...kiforTests,
+	...kiforTests.map(config => ({ ...config, files: [...config.files, '**/*.spec.component.ts'] })),
 	{
 		files: ['**/*.spec.ts'],
 		rules: {

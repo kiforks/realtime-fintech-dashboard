@@ -5,7 +5,6 @@ import { MarketFeedSettingsConfig, MarketUpdateLayoutConfig } from '../../config
 import { MarketBatchMock, MarketUpdateMock } from '../../mocks';
 
 const SEED = 42;
-const MAX_TRADE_QUANTITY = 100;
 
 const breaksAnInvariant = (
 	{ askCents, bidCents, instrument, priceCents, tradeQuantity }: MarketUpdate,
@@ -15,7 +14,7 @@ const breaksAnInvariant = (
 	const hasPositiveBid = bidCents > 0;
 	const hasBidBelowAsk = bidCents < askCents;
 	const tradesAtAQuote = priceCents === bidCents || priceCents === askCents;
-	const hasValidTradeQuantity = tradeQuantity >= 1 && tradeQuantity <= MAX_TRADE_QUANTITY;
+	const hasValidTradeQuantity = tradeQuantity >= 1 && tradeQuantity <= 100;
 
 	return !(hasValidInstrument && hasPositiveBid && hasBidBelowAsk && tradesAtAQuote && hasValidTradeQuantity);
 };
