@@ -1,12 +1,13 @@
 <header *appMarketFeed="let feed" appPageHeader>
+	@let settings = feed.settings();
+	@let updatesPerSecond = settings | dashboardRate;
+
 	<h1 appPageTitle i18n data-po="dashboard-page-title">Market dashboard</h1>
 
 	<output appBadge i18n data-po="dashboard-page-status">
 		{feed.status(), select, running {Running} paused {Paused} failed {Failed}}
 	</output>
 
-	@let settings = feed.settings();
-	@let updatesPerSecond = settings | dashboardRate;
 	<p appNote i18n data-po="dashboard-page-rate">
 		{settings.instrumentCount, plural, =1 {1 instrument,} other {{{ settings.instrumentCount }} instruments,}}
 		{settings.updatesPerBatch, plural, =1 {1 update} other {{{ settings.updatesPerBatch }} updates}}
