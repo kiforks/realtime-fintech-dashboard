@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-	selector: 'p[appNote]',
+	selector: '[appNote]',
 	templateUrl: './note.component.html',
 	styleUrl: './note.component.scss',
 })

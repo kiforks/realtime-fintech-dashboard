@@ -4,7 +4,7 @@ import { FORM_FIELD } from '@angular/forms/signals';
 import { FormFieldHelper } from '../../helpers';
 
 @Component({
-	selector: 'input[appFormInput]',
+	selector: '[appFormInput]',
 	templateUrl: './form-input.component.html',
 	styleUrl: './form-input.component.scss',
 	host: {

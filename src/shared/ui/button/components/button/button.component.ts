@@ -3,7 +3,7 @@ import { Component, input } from '@angular/core';
 import { ButtonAppearance } from '../../models';
 
 @Component({
-	selector: 'button[appButton]',
+	selector: '[appButton]',
 	templateUrl: './button.component.html',
 	styleUrl: './button.component.scss',
 	host: { '[class]': 'appearance()' },

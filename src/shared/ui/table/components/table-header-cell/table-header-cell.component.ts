@@ -3,7 +3,7 @@ import { Component, input } from '@angular/core';
 import { TableCellType } from '../../models';
 
 @Component({
-	selector: 'th[appTableHeaderCell]',
+	selector: '[appTableHeaderCell]',
 	templateUrl: './table-header-cell.component.html',
 	styleUrl: './table-header-cell.component.scss',
 	host: { '[class]': 'type()' },

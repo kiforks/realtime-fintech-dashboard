@@ -4,7 +4,7 @@ import { ReadonlyFieldState } from '@angular/forms/signals';
 import { FormFieldHelper } from '../../helpers';
 
 @Component({
-	selector: 'p[appFormError]',
+	selector: '[appFormError]',
 	templateUrl: './form-error.component.html',
 	styleUrl: './form-error.component.scss',
 	host: {

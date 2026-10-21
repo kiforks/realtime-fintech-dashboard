@@ -3,7 +3,7 @@ import { Component, contentChild } from '@angular/core';
 import { TableCaptionComponent } from '../table-caption';
 
 @Component({
-	selector: 'section[appTableScroll]',
+	selector: '[appTableScroll]',
 	templateUrl: './table-scroll.component.html',
 	styleUrl: './table-scroll.component.scss',
 	host: {

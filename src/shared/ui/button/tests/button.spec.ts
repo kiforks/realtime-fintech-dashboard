@@ -22,4 +22,9 @@ describe(ButtonComponent, () => {
 		await expect.element(buttonPO.primary).toHaveTextContent('Apply');
 		await expect.element(buttonPO.primary).toHaveClass('primary');
 	});
+
+	it('should render a link as a button', async () => {
+		await expect.element(buttonPO.link).toHaveClass('secondary');
+		await expect.element(buttonPO.link).toHaveStyle({ display: 'inline-block', textDecorationLine: 'none' });
+	});
 });

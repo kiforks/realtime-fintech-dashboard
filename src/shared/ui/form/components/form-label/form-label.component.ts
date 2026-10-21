@@ -2,7 +2,7 @@ import { Component, computed, input } from '@angular/core';
 import { Field } from '@angular/forms/signals';
 
 @Component({
-	selector: 'label[appFormLabel]',
+	selector: '[appFormLabel]',
 	templateUrl: './form-label.component.html',
 	styleUrl: './form-label.component.scss',
 	host: { '[attr.for]': 'controlId()' },

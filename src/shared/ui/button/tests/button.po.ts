@@ -8,4 +8,8 @@ export class ButtonPO {
 	public get primary(): Locator {
 		return page.getByTestId('button-primary');
 	}
+
+	public get link(): Locator {
+		return page.getByTestId('button-link');
+	}
 }
