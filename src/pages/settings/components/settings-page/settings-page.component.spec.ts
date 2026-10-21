@@ -3,7 +3,7 @@ import { MockProvider } from 'ng-mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 
-import { SettingsPageComponent } from '../settings-page.component';
+import { SettingsPageComponent } from './settings-page.component';
 import { SettingsPageComponentPO } from './settings-page.component.po';
 
 import { MarketFeedService } from '~/entities/market';

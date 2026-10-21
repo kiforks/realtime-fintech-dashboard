@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { MarketFeedDirective } from '../../market-feed.directive';
+import { MarketFeedDirective } from './market-feed.directive';
 
 @Component({
 	selector: 'app-market-feed-host-spec',

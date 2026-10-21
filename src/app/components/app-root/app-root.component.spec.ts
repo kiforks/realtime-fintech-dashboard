@@ -4,11 +4,11 @@ import { TestBed } from '@angular/core/testing';
 import { Title } from '@angular/platform-browser';
 import { provideRouter, Router } from '@angular/router';
 
-import { AppRootComponent } from '../app-root.component';
+import { AppRootComponent } from './app-root.component';
 import { AppRootComponentPO } from './app-root.component.po';
 import { DashboardPageComponentPO } from '~/pages/dashboard/testing';
 import { SettingsPageComponentPO } from '~/pages/settings/testing';
-import { APP_ROUTES } from '../../../routes';
+import { APP_ROUTES } from '../../routes';
 
 import { MarketFeedService } from '~/entities/market';
 import { MARKET_WORKER_FACTORY, MarketWorker, MarketWorkerMock } from '~/entities/market/testing';

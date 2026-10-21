@@ -2,13 +2,13 @@ import { MockProvider } from 'ng-mocks';
 
 import { TestBed } from '@angular/core/testing';
 
-import { MarketFeedService } from '../../../services';
-import { MarketFeedDirective } from '../market-feed.directive';
-import { MarketFeedHostSpecComponent } from './components/market-feed-host.spec.component';
+import { MarketFeedService } from '../../services';
+import { MarketFeedHostSpecComponent } from './market-feed-host.spec.component';
+import { MarketFeedDirective } from './market-feed.directive';
 import { MarketFeedDirectivePO } from './market-feed.directive.po';
 
-import { MarketWorkerMock } from '../../../mocks';
-import { MARKET_WORKER_FACTORY } from '../../../tokens';
+import { MarketWorkerMock } from '../../mocks';
+import { MARKET_WORKER_FACTORY } from '../../tokens';
 
 describe(MarketFeedDirective, () => {
 	let worker: MarketWorkerMock;

@@ -1,16 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AlertComponent } from '../components';
-import { AlertHostSpecComponent } from './components/alert-host.spec.component';
-
-import { AlertPO } from './alert.po';
+import { AlertHostSpecComponent } from './alert-host.spec.component';
+import { AlertComponent } from './alert.component';
+import { AlertComponentPO } from './alert.component.po';
 
 describe(AlertComponent, () => {
-	let alertPO: AlertPO;
+	let alertPO: AlertComponentPO;
 
 	beforeEach(() => {
 		TestBed.createComponent(AlertHostSpecComponent);
-		alertPO = new AlertPO();
+		alertPO = new AlertComponentPO();
 	});
 
 	it('should announce its message to assistive technology as an alert', async () => {

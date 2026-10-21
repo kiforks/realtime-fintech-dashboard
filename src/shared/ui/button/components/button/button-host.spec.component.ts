@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { ButtonComponent } from '../../components';
+import { ButtonComponent } from './button.component';
 
 @Component({
 	selector: 'app-button-host-spec',

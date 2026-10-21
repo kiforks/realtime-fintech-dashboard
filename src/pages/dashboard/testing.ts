@@ -1,1 +1,1 @@
-export { DashboardPageComponentPO } from './components/dashboard-page/tests/dashboard-page.component.po';
+export { DashboardPageComponentPO } from './components/dashboard-page/dashboard-page.component.po';

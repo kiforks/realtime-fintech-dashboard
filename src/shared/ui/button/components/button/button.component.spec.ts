@@ -1,16 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ButtonComponent } from '../components';
-import { ButtonHostSpecComponent } from './components/button-host.spec.component';
-
-import { ButtonPO } from './button.po';
+import { ButtonHostSpecComponent } from './button-host.spec.component';
+import { ButtonComponent } from './button.component';
+import { ButtonComponentPO } from './button.component.po';
 
 describe(ButtonComponent, () => {
-	let buttonPO: ButtonPO;
+	let buttonPO: ButtonComponentPO;
 
 	beforeEach(() => {
 		TestBed.createComponent(ButtonHostSpecComponent);
-		buttonPO = new ButtonPO();
+		buttonPO = new ButtonComponentPO();
 	});
 
 	it('should render the secondary appearance when no appearance is given', async () => {

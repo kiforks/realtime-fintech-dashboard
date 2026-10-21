@@ -1,1 +1,1 @@
-export { SettingsPageComponentPO } from './components/settings-page/tests/settings-page.component.po';
+export { SettingsPageComponentPO } from './components/settings-page/settings-page.component.po';

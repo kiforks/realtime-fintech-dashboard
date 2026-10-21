@@ -2,7 +2,7 @@ import { MockProvider } from 'ng-mocks';
 
 import { TestBed } from '@angular/core/testing';
 
-import { DashboardPageComponent } from '../dashboard-page.component';
+import { DashboardPageComponent } from './dashboard-page.component';
 import { DashboardPageComponentPO } from './dashboard-page.component.po';
 
 import { MarketFeedService } from '~/entities/market';

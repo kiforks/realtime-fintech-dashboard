@@ -1,6 +1,6 @@
 import { Locator, page } from 'vitest/browser';
 
-export class ButtonPO {
+export class ButtonComponentPO {
 	public get secondary(): Locator {
 		return page.getByTestId('button-secondary');
 	}
