@@ -181,8 +181,9 @@ describe(MarketFeedService, () => {
 		});
 
 		it('should stop and explain the failure when the worker crashes', () => {
-			worker.crash('Failed to fetch the worker script');
+			const crash = worker.crash('Failed to fetch the worker script');
 
+			expect(crash.defaultPrevented).toBe(true);
 			expect(worker.terminate).toHaveBeenCalledTimes(1);
 			expect(marketFeedService.status()).toBe(MarketFeedStatus.Failed);
 			expect(marketFeedService.errorMessage()).toBe('The market data worker stopped unexpectedly');
