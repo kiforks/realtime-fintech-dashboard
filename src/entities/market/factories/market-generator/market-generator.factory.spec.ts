@@ -11,12 +11,12 @@ const breaksAnInvariant = (
 	instrumentCount: number
 ): boolean => {
 	const hasValidInstrument = instrument < instrumentCount;
-	const hasPositiveBid = bidCents > 0;
+	const hasBidInRange = bidCents > 0 && bidCents <= 100_000;
 	const hasBidBelowAsk = bidCents < askCents;
 	const tradesAtAQuote = priceCents === bidCents || priceCents === askCents;
 	const hasValidTradeQuantity = tradeQuantity >= 1 && tradeQuantity <= 100;
 
-	return !(hasValidInstrument && hasPositiveBid && hasBidBelowAsk && tradesAtAQuote && hasValidTradeQuantity);
+	return !(hasValidInstrument && hasBidInRange && hasBidBelowAsk && tradesAtAQuote && hasValidTradeQuantity);
 };
 
 describe(MarketGeneratorFactory, () => {
@@ -32,13 +32,11 @@ describe(MarketGeneratorFactory, () => {
 		generator.free();
 	});
 
-	it('should return exactly the requested number of updates in each batch', () => {
-		const lengths = [1, 1000].map(size => generator.nextBatch(size).length);
-
-		expect(lengths).toStrictEqual([MarketUpdateLayoutConfig.Stride, 1000 * MarketUpdateLayoutConfig.Stride]);
+	it.each([1, 1000])('should return exactly %i updates when asked for %i', size => {
+		expect(generator.nextBatch(size)).toHaveLength(size * MarketUpdateLayoutConfig.Stride);
 	});
 
-	it('should keep the bid positive and below the ask and trade at one of the quotes', () => {
+	it('should keep the bid in range and below the ask and trade at one of the quotes', () => {
 		const updates = Array.from({ length: 10 }, () => MarketBatchMock.decode(generator.nextBatch(1000))).flat();
 		const violations = updates.filter(update => breaksAnInvariant(update, instrumentCount));
 
