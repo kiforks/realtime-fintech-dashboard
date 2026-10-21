@@ -36,6 +36,9 @@ describe(MarketFeedErrorDirective, () => {
 
 	it('should remove the failure message once a new run starts', async () => {
 		worker.emit({ message: 'memory access out of bounds', runId: 1, type: 'error' });
+
+		await expect.element(marketFeedErrorPO.error).toHaveTextContent('Stopped: memory access out of bounds');
+
 		marketFeedService.apply(MarketFeedSettingsMock.create());
 
 		await expect.element(marketFeedErrorPO.error).not.toBeInTheDocument();

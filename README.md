@@ -91,7 +91,8 @@ by at most `max(1, mid / 2000)` cents inside a $10–$1000 band, so prices evolv
 is 1–`mid / 1000` cents with `bid = mid − spread / 2` and `ask = bid + spread`, so the bid is always positive and below
 the ask. The trade happens at that update's bid or ask, trade quantities are 1–100, and book quantities random-walk in
 0–5000. All randomness comes from a PCG32 seeded per run (`crypto.getRandomValues` in the worker, fixed seeds in tests);
-there is no `getrandom` dependency.
+there is no `getrandom` dependency. The generator checks its inputs at the Wasm boundary: an instrument count outside
+1–50 or a batch size outside 1–1000 throws a readable error instead of a Wasm trap.
 
 ## Performance
 
@@ -106,21 +107,21 @@ Rendering the table through the UI kit components costs no measurable time: at t
 Chrome DevTools Protocol over 10 seconds, the main thread is busy about 11% of the time (scripting about 2.3%) — the
 same as before the UI kit (11%, 2.0%).
 
-The initial bundle is about 288 kB raw (81 kB compressed); the settings page and the signal-forms code load lazily
+The initial bundle is about 290 kB raw (82 kB compressed); the settings page and the signal-forms code load lazily
 (68 kB raw). The worker chunk with the inlined Wasm module is about 34 kB raw (14 kB compressed).
 
 ## Tests
 
-| Requirement                                           | Where                                                                      |
-| ----------------------------------------------------- | -------------------------------------------------------------------------- |
-| Metrics: worked example, zero denominators, isolation | `market-metrics.helper.spec.ts`                                            |
-| Formatting: currency, signed imbalance, unavailable   | `cents.pipe.spec.ts`, `signed-ratio.pipe.spec.ts`, `dashboard-page` spec   |
-| Settings validation and reset on Apply                | `settings-page` spec, `integer-range.validator.spec.ts`, feed service spec |
-| Pause / resume without catch-up                       | `market.producer.spec.ts` (fake timers), feed service and dashboard specs  |
-| Rejection of results from a previous run              | `market-feed.service.spec.ts`                                              |
-| One producer and paused state across navigation       | `app-root.component.spec.ts`                                               |
-| Generator: batch sizes, valid values, state, seeds    | Rust tests in `wasm/src/market.rs`, `market-generator.factory.spec.ts`     |
-| Accessibility: names, descriptions, roles             | UI kit component specs (form, table, nav, alert) and the page specs        |
+| Requirement                                           | Where                                                                                  |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Metrics: worked example, zero denominators, isolation | `market-metrics.helper.spec.ts`                                                        |
+| Formatting: currency, signed imbalance, unavailable   | `cents.pipe.spec.ts`, `signed-ratio.pipe.spec.ts`, `dashboard-page` spec               |
+| Settings validation and reset on Apply                | `settings-page` spec, `integer-range.validator.spec.ts`, feed service spec             |
+| Pause / resume without catch-up                       | `market.producer.spec.ts` (fake timers), feed service and dashboard specs              |
+| Rejection of results from a previous run              | `market-feed.service.spec.ts`                                                          |
+| One producer and paused state across navigation       | `app-root.component.spec.ts`                                                           |
+| Generator: batch sizes, valid values, state, seeds    | Rust tests in `wasm/src/market.rs`, `market-generator.factory.spec.ts`                 |
+| Accessibility: names, descriptions, roles, focus      | UI kit component specs (form, table, nav, alert), the page specs and the app root spec |
 
 The unit tests run in **Vitest browser mode** in headless Chromium (Playwright provider), so they see real layout,
 focus and the accessibility tree. Every component spec drives the DOM through a **page object** — a `*.po.ts` class
@@ -138,7 +139,7 @@ module and checks a fixed-seed batch field by field, which guards the layout con
 
 Requirements:
 
-- Node.js 24 (see `.nvmrc`) and npm
+- Node.js 24.15 or a newer 24.x (`.nvmrc` names only the major version) and npm
 - Rust through [rustup](https://rustup.rs/). `rust-toolchain.toml` pins Rust 1.99.1 with the `wasm32-unknown-unknown`
   target, clippy and rustfmt, so rustup installs the right toolchain on first use. The Rust scripts run through
   `scripts/with-rust.mjs`, which asks `rustup which cargo` for the pinned toolchain when `cargo` is not on `PATH`
@@ -198,7 +199,9 @@ wasm/                         Rust crate `market-generator`, compiled to WebAsse
   `tokens/`, `factories/`, `producers/`, …), and every unit that has a spec gets its own sub-folder with an `index.ts`.
   A spec lives next to the unit it tests, in the same folder, together with its page object (`*.po.ts`) and, for a
   component or directive that needs a host, its host component (`*.spec.component.ts` with its
-  `*.spec.component.html`). Each UI kit component has its own spec; there are no module level specs.
+  `*.spec.component.html`). Each UI kit component with behaviour of its own (variants, ids, ARIA wiring) has its own
+  spec; the purely presentational ones (badge, form, note, page, table, table row) are covered by the page specs.
+  There are no module level specs.
 - **Public API.** A slice is imported only through its `index.ts`; specs use its `testing.ts` (mocks, page objects, the
   worker token). Inside a slice, imports are relative; between slices, through the `~/` alias. A UI kit module is
   imported through `~/shared/ui/<module>`, so a page pulls in only the modules it uses and the signal-forms code stays
@@ -215,16 +218,16 @@ only their own host. The page picks the native element, so the markup keeps its 
 appearance or the cell type, becomes the host class as it is, and every component keeps its template in its own
 `.html` file.
 
-| Module   | Selectors                                                                                                        | Used on                                         |
-| -------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `page`   | `[appPageHeader]`, `[appPageTitle]`                                                                              | `header`, `h1`                                  |
-| `button` | `[appButton]`, `[appButton="primary"]`                                                                           | `button`, `a`                                   |
-| `badge`  | `[appBadge]`                                                                                                     | `output` — the producer status, announced       |
-| `note`   | `[appNote]`                                                                                                      | `p`                                             |
-| `alert`  | `[appAlert]` with `role="alert"`                                                                                 | `p`                                             |
-| `nav`    | `[appNavList]` (keeps list semantics with `role="list"`), `[appNavLink]` styled from `aria-current`              | `ul`, `a`                                       |
-| `table`  | `[appTableScroll]`, `[appTable]`, `[appTableCaption]`, `[appTableRow]`, `[appTableHeaderCell]`, `[appTableCell]` | `section`, `table`, `caption`, `tr`, `th`, `td` |
-| `form`   | `[appForm]`, `[appFormLabel]`, `[appFormInput]`, `[appFormError]`, `*appFormIfInvalid`                           | `form`, `label`, `input`, `p`                   |
+| Module   | Selectors                                                                                           | Used on                                         |
+| -------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `page`   | `[appPageHeader]`, `[appPageTitle]`                                                                 | `header`, `h1`                                  |
+| `button` | `[appButton]`, `[appButton="primary"]`                                                              | `button`, `a`                                   |
+| `badge`  | `[appBadge]`                                                                                        | `output` — the producer status, announced       |
+| `note`   | `[appNote]`                                                                                         | `p`                                             |
+| `alert`  | `[appAlert]` with `role="alert"`                                                                    | `p`                                             |
+| `nav`    | `[appNavList]` (keeps list semantics with `role="list"`), `[appNavLink]` styled from `aria-current` | `ul`, `a`                                       |
+| `table`  | `[appTableScroll]`, `[appTable]`, `[appTableCaption]`, `[appTableRow]`, `[appTableCell]`            | `section`, `table`, `caption`, `tr`, `th`, `td` |
+| `form`   | `[appForm]`, `[appFormLabel]`, `[appFormInput]`, `[appFormError]`, `*appFormIfInvalid`              | `form`, `label`, `input`, `p`                   |
 
 - The scrolling table region is focusable and named after its caption automatically: the caption takes a generated
   id and the region points `aria-labelledby` at it. Header cells carry `scope`.
@@ -233,9 +236,11 @@ appearance or the cell type, becomes the host class as it is, and every componen
   leaves the field or submits). `*appFormIfInvalid` renders the error with the field state as its context, so the
   message reads the limits from the schema (`field.min()`, `field.max()`). Signal forms also set `required`, `min`
   and `max` on the input.
-- Every route sets the document title. The current navigation link is marked by weight and an underline as well as
-  by colour. Input and button borders use `--color-control-border`, which keeps a 3:1 contrast in both themes, and all
-  text meets 4.5:1. Focus is always visible, and the styles use logical properties.
+- Every route sets the document title, and after each navigation except the first, focus moves to the page content
+  (`main`), so keyboard and screen reader users start on the new page. The current navigation link is marked by weight
+  and an underline as well as by colour. Input and button borders use `--color-control-border`, which keeps a 3:1
+  contrast in both themes, and all text meets 4.5:1. Every control shows one focus ring from the theme tokens; `main` is
+  a focus target outside the tab order and has no ring. The styles use logical properties.
 - Components rely on Angular 22's default `OnPush` change detection, so none of them sets `changeDetection`.
 
 ## Delivery

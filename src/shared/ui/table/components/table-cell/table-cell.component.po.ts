@@ -1,6 +1,14 @@
 import { Locator, page } from 'vitest/browser';
 
 export class TableCellComponentPO {
+	public get textHeader(): Locator {
+		return page.getByTestId('table-cell-text-header');
+	}
+
+	public get numericHeader(): Locator {
+		return page.getByTestId('table-cell-numeric-header');
+	}
+
 	public get text(): Locator {
 		return page.getByTestId('table-cell-text');
 	}

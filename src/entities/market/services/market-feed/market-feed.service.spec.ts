@@ -87,6 +87,13 @@ describe(MarketFeedService, () => {
 			expect(marketFeedService.errorMessage()).toBeNull();
 		});
 
+		it('should show the results of the new run once settings are applied', () => {
+			marketFeedService.apply(appliedSettings);
+			worker.emit({ runId: 2, stats: [MarketInstrumentStatsMock.create()], type: 'snapshot' });
+
+			expect(marketFeedService.rows()).toStrictEqual([MarketInstrumentMetricsMock.create()]);
+		});
+
 		it('should pause and resume the producer while keeping the current values', () => {
 			worker.emit({ runId: 1, stats: [MarketInstrumentStatsMock.create()], type: 'snapshot' });
 			marketFeedService.togglePause();
@@ -99,6 +106,18 @@ describe(MarketFeedService, () => {
 
 			expect(worker.postMessage).toHaveBeenLastCalledWith({ type: 'resume' });
 			expect(marketFeedService.status()).toBe(MarketFeedStatus.Running);
+		});
+
+		it('should show new results again after resuming', () => {
+			marketFeedService.togglePause();
+			marketFeedService.togglePause();
+			worker.emit({
+				runId: 1,
+				stats: [MarketInstrumentStatsMock.create({ notionalCents: 812000, volume: 80 })],
+				type: 'snapshot',
+			});
+
+			expect(marketFeedService.rows()).toStrictEqual([MarketInstrumentMetricsMock.create({ volume: 80 })]);
 		});
 
 		it('should tell whether the feed is paused', () => {
@@ -153,9 +172,18 @@ describe(MarketFeedService, () => {
 			expect(marketFeedService.canTogglePause()).toBe(true);
 		});
 
-		it('should stop and explain the failure when the worker crashes', () => {
-			worker.crash('Failed to fetch the worker script');
+		it('should show the results that the replacement worker sends', () => {
+			worker.emit({ message: 'memory access out of bounds', runId: 1, type: 'error' });
+			marketFeedService.apply(appliedSettings);
+			replacementWorker.emit({ runId: 2, stats: [MarketInstrumentStatsMock.create()], type: 'snapshot' });
 
+			expect(marketFeedService.rows()).toStrictEqual([MarketInstrumentMetricsMock.create()]);
+		});
+
+		it('should stop and explain the failure when the worker crashes', () => {
+			const crash = worker.crash('Failed to fetch the worker script');
+
+			expect(crash.defaultPrevented).toBe(true);
 			expect(worker.terminate).toHaveBeenCalledTimes(1);
 			expect(marketFeedService.status()).toBe(MarketFeedStatus.Failed);
 			expect(marketFeedService.errorMessage()).toBe('The market data worker stopped unexpectedly');

@@ -9,7 +9,7 @@ import { TableCellType } from '../../models';
 	host: { '[class]': 'type()' },
 })
 export class TableCellComponent {
-	public readonly type = input<TableCellType, TableCellType | ''>('text', {
+	public readonly type = input.required<TableCellType, TableCellType | ''>({
 		alias: 'appTableCell',
 		transform: type => (type === '' ? 'text' : type),
 	});

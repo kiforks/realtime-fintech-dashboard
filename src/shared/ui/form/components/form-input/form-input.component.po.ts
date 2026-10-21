@@ -9,6 +9,10 @@ export class FormInputComponentPO {
 		await this.input.fill(value);
 	}
 
+	public async focus(): Promise<void> {
+		await this.input.click();
+	}
+
 	public async leave(): Promise<void> {
 		await userEvent.tab();
 	}

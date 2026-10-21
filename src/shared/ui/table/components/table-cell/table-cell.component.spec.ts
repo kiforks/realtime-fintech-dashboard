@@ -12,8 +12,18 @@ describe(TableCellComponent, () => {
 		tableCellPO = new TableCellComponentPO();
 	});
 
-	it('should align a numeric cell to the end and a text one to the start', async () => {
+	it('should align cells by type and set header cells apart from body cells', async () => {
 		await expect.element(tableCellPO.numeric).toHaveStyle({ textAlign: 'end' });
 		await expect.element(tableCellPO.text).toHaveStyle({ textAlign: 'start' });
+		await expect.element(tableCellPO.numericHeader).toHaveStyle({ textAlign: 'end' });
+		await expect.element(tableCellPO.textHeader).toHaveStyle({ textAlign: 'start' });
+		await expect.element(tableCellPO.textHeader).toHaveStyle({
+			borderBottomStyle: 'solid',
+			color: 'rgb(91, 102, 118)',
+			fontSize: '13px',
+			fontWeight: '600',
+		});
+		await expect.element(tableCellPO.text).toHaveStyle({ borderBottomStyle: 'none', fontSize: '15px' });
+		await expect.element(tableCellPO.numeric).toHaveStyle({ borderBottomStyle: 'none', fontWeight: '400' });
 	});
 });

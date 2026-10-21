@@ -5,13 +5,13 @@
 	<h1 appPageTitle i18n data-po="dashboard-page-title">Market dashboard</h1>
 
 	<output appBadge i18n data-po="dashboard-page-status">
-		{feed.status(), select, running {Running} paused {Paused} failed {Failed}}
+		{feed.status(), select, running {Running} paused {Paused} other {Failed}}
 	</output>
 
 	<p appNote i18n data-po="dashboard-page-rate">
 		{settings.instrumentCount, plural, =1 {1 instrument,} other {{{ settings.instrumentCount }} instruments,}}
-		{settings.updatesPerBatch, plural, =1 {1 update} other {{{ settings.updatesPerBatch }} updates}}
-		every {{ settings.batchIntervalMs }} ms
+		{settings.updatesPerBatch, plural, =1 {1 update} other {{{ settings.updatesPerBatch | number }} updates}}
+		every {{ settings.batchIntervalMs | number }} ms
 		{updatesPerSecond, plural, =1 {(1 update/s)} other {({{ updatesPerSecond | number }} updates/s)}}
 	</p>
 
@@ -39,12 +39,12 @@
 
 		<thead>
 			<tr appTableRow>
-				<th appTableHeaderCell i18n scope="col">Instrument</th>
-				<th appTableHeaderCell="numeric" i18n scope="col">Last price</th>
-				<th appTableHeaderCell="numeric" i18n scope="col">Spread</th>
-				<th appTableHeaderCell="numeric" i18n scope="col">Volume</th>
-				<th appTableHeaderCell="numeric" i18n scope="col">VWAP</th>
-				<th appTableHeaderCell="numeric" i18n scope="col">Imbalance</th>
+				<th appTableCell i18n scope="col">Instrument</th>
+				<th appTableCell="numeric" i18n scope="col">Last price</th>
+				<th appTableCell="numeric" i18n scope="col">Spread</th>
+				<th appTableCell="numeric" i18n scope="col">Volume</th>
+				<th appTableCell="numeric" i18n scope="col">VWAP</th>
+				<th appTableCell="numeric" i18n scope="col">Imbalance</th>
 			</tr>
 		</thead>
 

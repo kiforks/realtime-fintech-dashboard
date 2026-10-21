@@ -8,15 +8,7 @@ import kiforTypescript from '@kiforks/eslint-config/typescript.js';
 import kiforVitest from '@kiforks/eslint-config/vitest.js';
 
 const I18N_RULE = '@angular-eslint/template/i18n';
-const NON_TRANSLATABLE_ATTRIBUTES = [
-	'appButton',
-	'appTableCell',
-	'appTableHeaderCell',
-	'aria-describedby',
-	'aria-labelledby',
-	'ariaCurrentWhenActive',
-	'scope',
-];
+const NON_TRANSLATABLE_ATTRIBUTES = ['appButton', 'appTableCell', 'ariaCurrentWhenActive', 'scope'];
 
 const withNonTranslatableAttributes = config => {
 	const i18nRule = config.rules?.[I18N_RULE];

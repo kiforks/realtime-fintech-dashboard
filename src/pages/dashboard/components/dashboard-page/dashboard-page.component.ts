@@ -14,7 +14,6 @@ import {
 	TableCaptionComponent,
 	TableCellComponent,
 	TableComponent,
-	TableHeaderCellComponent,
 	TableRowComponent,
 	TableScrollComponent,
 } from '~/shared/ui/table';
@@ -37,7 +36,6 @@ import {
 		TableCaptionComponent,
 		TableCellComponent,
 		TableComponent,
-		TableHeaderCellComponent,
 		TableRowComponent,
 		TableScrollComponent,
 	],

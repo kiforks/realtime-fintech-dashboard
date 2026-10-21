@@ -12,5 +12,5 @@ import { TableCaptionComponent } from '../table-caption';
 	},
 })
 export class TableScrollComponent {
-	protected readonly caption = contentChild(TableCaptionComponent, { descendants: true });
+	protected readonly caption = contentChild(TableCaptionComponent);
 }

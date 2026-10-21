@@ -9,7 +9,7 @@ import { ButtonAppearance } from '../../models';
 	host: { '[class]': 'appearance()' },
 })
 export class ButtonComponent {
-	public readonly appearance = input<ButtonAppearance, ButtonAppearance | ''>('secondary', {
+	public readonly appearance = input.required<ButtonAppearance, ButtonAppearance | ''>({
 		alias: 'appButton',
 		transform: appearance => (appearance === '' ? 'secondary' : appearance),
 	});

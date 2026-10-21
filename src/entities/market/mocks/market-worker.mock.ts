@@ -10,7 +10,11 @@ export class MarketWorkerMock implements MarketWorker {
 		this.onmessage?.(new MessageEvent('message', { data: event }));
 	}
 
-	public crash(message: string): void {
-		this.onerror?.(new ErrorEvent('error', { cancelable: true, message }));
+	public crash(message: string): ErrorEvent {
+		const event = new ErrorEvent('error', { cancelable: true, message });
+
+		this.onerror?.(event);
+
+		return event;
 	}
 }
