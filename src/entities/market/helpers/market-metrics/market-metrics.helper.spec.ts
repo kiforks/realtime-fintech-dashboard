@@ -8,7 +8,14 @@ describe(MarketMetricsHelper, () => {
 
 	beforeEach(() => {
 		workedExampleBatch = MarketBatchMock.encode([
-			MarketUpdateMock.create({ askCents: 10000, bidCents: 9996, priceCents: 10000, tradeQuantity: 10 }),
+			MarketUpdateMock.create({
+				askCents: 10000,
+				askQuantity: 900,
+				bidCents: 9996,
+				bidQuantity: 100,
+				priceCents: 10000,
+				tradeQuantity: 10,
+			}),
 			MarketUpdateMock.create(),
 		]);
 	});
@@ -30,7 +37,7 @@ describe(MarketMetricsHelper, () => {
 	});
 
 	describe('accumulate', () => {
-		it('should keep the latest quote and count every trade of the worked example', () => {
+		it('should keep the latest quote and book and count every trade of the worked example', () => {
 			expect(MarketMetricsHelper.accumulate(MarketMetricsHelper.empty(1), workedExampleBatch)).toStrictEqual([
 				MarketInstrumentStatsMock.create(),
 			]);
