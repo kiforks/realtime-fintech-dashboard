@@ -239,8 +239,8 @@ appearance or the cell type, becomes the host class as it is, and every componen
 - Every route sets the document title, and after each navigation except the first, focus moves to the page content
   (`main`), so keyboard and screen reader users start on the new page. The current navigation link is marked by weight
   and an underline as well as by colour. Input and button borders use `--color-control-border`, which keeps a 3:1
-  contrast in both themes, and all text meets 4.5:1. Focus is always visible, drawn by one ring from the theme tokens,
-  and the styles use logical properties.
+  contrast in both themes, and all text meets 4.5:1. Every control shows one focus ring from the theme tokens; `main` is
+  a focus target outside the tab order and has no ring. The styles use logical properties.
 - Components rely on Angular 22's default `OnPush` change detection, so none of them sets `changeDetection`.
 
 ## Delivery
