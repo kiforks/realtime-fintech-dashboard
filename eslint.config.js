@@ -122,6 +122,12 @@ export default [
 		},
 	},
 	{
+		files: ['**/*.spec.component.ts*.html'],
+		rules: {
+			[I18N_RULE]: 'off',
+		},
+	},
+	{
 		files: ['**/*.po.ts', '**/*.spec.ts'],
 		rules: {
 			'@angular-eslint/no-experimental': 'off',
