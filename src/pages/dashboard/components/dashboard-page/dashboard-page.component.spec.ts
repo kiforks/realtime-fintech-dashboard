@@ -58,7 +58,17 @@ describe(DashboardPageComponent, () => {
 			MarketFeedSettingsMock.create({ batchIntervalMs: 1000, instrumentCount: 1, updatesPerBatch: 1 })
 		);
 
-		await expect.element(dashboardPagePO.rate).toHaveTextContent('1 instrument, 1 update every 1000 ms (1 update/s)');
+		await expect.element(dashboardPagePO.rate).toHaveTextContent('1 instrument, 1 update every 1,000 ms (1 update/s)');
+	});
+
+	it('should group the digits of the batch size next to the grouped rate', async () => {
+		marketFeedService.apply(
+			MarketFeedSettingsMock.create({ batchIntervalMs: 50, instrumentCount: 50, updatesPerBatch: 1000 })
+		);
+
+		await expect
+			.element(dashboardPagePO.rate)
+			.toHaveTextContent('50 instruments, 1,000 updates every 50 ms (20,000 updates/s)');
 	});
 
 	it('should format prices as currency, volume with digit grouping and the imbalance as a signed ratio', async () => {

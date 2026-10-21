@@ -10,8 +10,8 @@
 
 	<p appNote i18n data-po="dashboard-page-rate">
 		{settings.instrumentCount, plural, =1 {1 instrument,} other {{{ settings.instrumentCount }} instruments,}}
-		{settings.updatesPerBatch, plural, =1 {1 update} other {{{ settings.updatesPerBatch }} updates}}
-		every {{ settings.batchIntervalMs }} ms
+		{settings.updatesPerBatch, plural, =1 {1 update} other {{{ settings.updatesPerBatch | number }} updates}}
+		every {{ settings.batchIntervalMs | number }} ms
 		{updatesPerSecond, plural, =1 {(1 update/s)} other {({{ updatesPerSecond | number }} updates/s)}}
 	</p>
 
