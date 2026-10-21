@@ -4,7 +4,7 @@
 	"extends": "./tsconfig.json",
 	"compilerOptions": {
 		"lib": ["es2024", "webworker"],
-		"types": []
+		"types": ["@angular/localize"]
 	},
 	"include": ["src/**/*.worker.ts", "src/**/*.d.ts"]
 }
