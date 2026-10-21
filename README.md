@@ -197,7 +197,7 @@ wasm/                         Rust crate `market-generator`, compiled to WebAsse
 - **One unit per sub-folder.** Inside a slice, code is grouped by kind (`components/`, `directives/`, `services/`,
   `tokens/`, `factories/`, `producers/`, …), and every unit that has a spec gets its own sub-folder with an `index.ts`.
   Specs of components and directives live in a `tests/` sub-folder together with their page objects and host
-  components (`*.spec.component.ts`).
+  components (`*.spec.component.ts` with their `*.spec.component.html`).
 - **Public API.** A slice is imported only through its `index.ts`; specs use its `testing.ts` (mocks, page objects, the
   worker token). Inside a slice, imports are relative; between slices, through the `~/` alias. A UI kit module is
   imported through `~/shared/ui/<module>`, so a page pulls in only the modules it uses and the signal-forms code stays
@@ -208,20 +208,22 @@ wasm/                         Rust crate `market-generator`, compiled to WebAsse
 
 ## UI kit and accessibility
 
-Pages contain no styles. They compose `src/shared/ui`, whose components attach to native elements through attribute
-selectors and style only their own host, so the markup keeps its semantics and the application renders no `div` or
-`span` at all.
+Pages contain no styles. They compose `src/shared/ui`, whose components are plain attribute selectors that style
+only their own host. The page picks the native element, so the markup keeps its semantics (a button style can sit on a
+`button` or on a link) and the application renders no `div` or `span` at all. A variant input, such as the button
+appearance or the cell type, becomes the host class as it is, and every component keeps its template in its own
+`.html` file.
 
-| Module   | Selectors                                                                                                                                 |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `page`   | `header[appPageHeader]`, `h1[appPageTitle]`                                                                                               |
-| `button` | `button[appButton]`, `button[appButton="primary"]`                                                                                        |
-| `badge`  | `output[appBadge]` — the producer status, announced as a status message                                                                   |
-| `note`   | `p[appNote]`                                                                                                                              |
-| `alert`  | `p[appAlert]` with `role="alert"`                                                                                                         |
-| `nav`    | `ul[appNavList]` (keeps list semantics with `role="list"`), `a[appNavLink]` styled from `aria-current`                                    |
-| `table`  | `section[appTableScroll]`, `table[appTable]`, `caption[appTableCaption]`, `tr[appTableRow]`, `th[appTableHeaderCell]`, `td[appTableCell]` |
-| `form`   | `form[appForm]`, `label[appFormLabel]`, `input[appFormInput]`, `p[appFormError]`, `*appFormIfInvalid`                                     |
+| Module   | Selectors                                                                                                        | Used on                                         |
+| -------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `page`   | `[appPageHeader]`, `[appPageTitle]`                                                                              | `header`, `h1`                                  |
+| `button` | `[appButton]`, `[appButton="primary"]`                                                                           | `button`, `a`                                   |
+| `badge`  | `[appBadge]`                                                                                                     | `output` — the producer status, announced       |
+| `note`   | `[appNote]`                                                                                                      | `p`                                             |
+| `alert`  | `[appAlert]` with `role="alert"`                                                                                 | `p`                                             |
+| `nav`    | `[appNavList]` (keeps list semantics with `role="list"`), `[appNavLink]` styled from `aria-current`              | `ul`, `a`                                       |
+| `table`  | `[appTableScroll]`, `[appTable]`, `[appTableCaption]`, `[appTableRow]`, `[appTableHeaderCell]`, `[appTableCell]` | `section`, `table`, `caption`, `tr`, `th`, `td` |
+| `form`   | `[appForm]`, `[appFormLabel]`, `[appFormInput]`, `[appFormError]`, `*appFormIfInvalid`                           | `form`, `label`, `input`, `p`                   |
 
 - The scrolling table region is focusable and named after its caption automatically: the caption takes a generated
   id and the region points `aria-labelledby` at it. Header cells carry `scope`.
