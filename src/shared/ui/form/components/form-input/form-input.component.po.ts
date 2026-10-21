@@ -9,6 +9,10 @@ export class FormInputComponentPO {
 		await this.input.fill(value);
 	}
 
+	public async focusWithKeyboard(): Promise<void> {
+		await userEvent.tab();
+	}
+
 	public async leave(): Promise<void> {
 		await userEvent.tab();
 	}
