@@ -1,6 +1,10 @@
 import { Locator, page } from 'vitest/browser';
 
 export class AppRootComponentPO {
+	public get content(): Locator {
+		return page.getByTestId('app-root-content');
+	}
+
 	public get dashboardLink(): Locator {
 		return page.getByTestId('app-root-dashboard-link');
 	}

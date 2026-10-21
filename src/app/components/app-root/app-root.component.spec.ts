@@ -59,6 +59,20 @@ describe(AppRootComponent, () => {
 		await expect.element(settingsPagePO.title).toHaveTextContent('Producer settings');
 	});
 
+	it('should leave focus alone on the first page', async () => {
+		await expect.element(appRootPO.content).not.toHaveFocus();
+	});
+
+	it('should move focus to the page content after each navigation', async () => {
+		await appRootPO.openSettings();
+
+		await expect.element(appRootPO.content).toHaveFocus();
+
+		await appRootPO.openDashboard();
+
+		await expect.element(appRootPO.content).toHaveFocus();
+	});
+
 	it('should name every page in the document title', async () => {
 		await expect.poll(() => title.getTitle()).toBe('Market dashboard · Realtime Fintech Dashboard');
 
