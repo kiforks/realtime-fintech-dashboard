@@ -3,8 +3,9 @@
 # Define maximum commit message length
 max_length=100
 
-# Validate only the subject: the first line that is not a git comment, so a body or trailer is allowed
-commit_message_main=$(grep -v "^#" "$1" | head -n 1)
+# Validate only the subject: the first line left after git strips comments and leading blank lines, so a body,
+# a trailer or a squash message from an interactive rebase is allowed
+commit_message_main=$(git stripspace --strip-comments < "$1" | head -n 1)
 
 # Skip validation for merge commits
 if echo "$commit_message_main" | grep -q "^Merge"; then
