@@ -1,8 +1,8 @@
 import { Locator, page } from 'vitest/browser';
 
 export class TableCellComponentPO {
-	public get header(): Locator {
-		return page.getByTestId('table-cell-header');
+	public get textHeader(): Locator {
+		return page.getByTestId('table-cell-text-header');
 	}
 
 	public get numericHeader(): Locator {
