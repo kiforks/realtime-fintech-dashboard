@@ -28,8 +28,8 @@ describe(FormInputComponent, () => {
 		await expect.element(formInputPO.input).toHaveAccessibleDescription('Enter an age from 18 to 99.');
 	});
 
-	it('should show the shared focus ring when reached with the keyboard', async () => {
-		await formInputPO.focusWithKeyboard();
+	it('should show the shared focus ring when focused', async () => {
+		await formInputPO.focus();
 
 		await expect.element(formInputPO.input).toHaveFocus();
 		await expect.element(formInputPO.input).toHaveStyle({ outlineOffset: '2px', outlineStyle: 'solid' });

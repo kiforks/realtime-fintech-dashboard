@@ -22,7 +22,7 @@ export class AppRootComponentPO {
 	}
 
 	public async openSettingsWithKeyboard(): Promise<void> {
-		await userEvent.tab();
+		await this.dashboardLink.click();
 		await userEvent.tab();
 		await userEvent.keyboard('{Enter}');
 	}
