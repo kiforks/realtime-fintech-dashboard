@@ -1,4 +1,8 @@
-@use 'theme';
+@use 'app-theme';
+
+html {
+	scrollbar-gutter: stable;
+}
 
 body {
 	margin: 0;

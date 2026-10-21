@@ -1,1 +1,1 @@
-export { RootComponent } from './root';
+export { AppRootComponent } from './app-root';

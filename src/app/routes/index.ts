@@ -1,1 +1,1 @@
-export { ROOT_ROUTES } from './root.routes';
+export { APP_ROUTES } from './app.routes';
