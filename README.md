@@ -107,7 +107,7 @@ Rendering the table through the UI kit components costs no measurable time: at t
 Chrome DevTools Protocol over 10 seconds, the main thread is busy about 11% of the time (scripting about 2.3%) — the
 same as before the UI kit (11%, 2.0%).
 
-The initial bundle is about 288 kB raw (81 kB compressed); the settings page and the signal-forms code load lazily
+The initial bundle is about 290 kB raw (82 kB compressed); the settings page and the signal-forms code load lazily
 (68 kB raw). The worker chunk with the inlined Wasm module is about 34 kB raw (14 kB compressed).
 
 ## Tests
