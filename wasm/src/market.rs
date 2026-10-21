@@ -181,7 +181,7 @@ mod tests {
 
     fn breaks_an_invariant(update: &MarketUpdate, instrument_count: u32) -> bool {
         let has_valid_instrument = update.instrument < instrument_count;
-        let has_positive_bid = update.bid_cents >= 1;
+        let has_positive_bid = (1..=MAX_MID_CENTS as u32).contains(&update.bid_cents);
         let has_bid_below_ask = update.bid_cents < update.ask_cents;
         let trades_at_a_quote =
             update.price_cents == update.bid_cents || update.price_cents == update.ask_cents;
