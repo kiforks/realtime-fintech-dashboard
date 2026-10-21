@@ -120,7 +120,7 @@ The initial bundle is about 288 kB raw (81 kB compressed); the settings page and
 | Rejection of results from a previous run              | `market-feed.service.spec.ts`                                              |
 | One producer and paused state across navigation       | `app-root.component.spec.ts`                                               |
 | Generator: batch sizes, valid values, state, seeds    | Rust tests in `wasm/src/market.rs`, `market-generator.factory.spec.ts`     |
-| Accessibility: names, descriptions, roles             | `form`, `table`, `nav` and `alert` UI kit specs and the page specs         |
+| Accessibility: names, descriptions, roles             | UI kit component specs (form, table, nav, alert) and the page specs        |
 
 The unit tests run in **Vitest browser mode** in headless Chromium (Playwright provider), so they see real layout,
 focus and the accessibility tree. Every component spec drives the DOM through a **page object** — a `*.po.ts` class
@@ -196,8 +196,9 @@ wasm/                         Rust crate `market-generator`, compiled to WebAsse
   `dashboard-rate.pipe.ts` / `DashboardRatePipe`, `app-root.component.ts` / `AppRootComponent`. `shared` is exempt.
 - **One unit per sub-folder.** Inside a slice, code is grouped by kind (`components/`, `directives/`, `services/`,
   `tokens/`, `factories/`, `producers/`, …), and every unit that has a spec gets its own sub-folder with an `index.ts`.
-  Specs of components and directives live in a `tests/` sub-folder together with their page objects and host
-  components (`*.spec.component.ts` with their `*.spec.component.html`).
+  A spec lives next to the unit it tests, in the same folder, together with its page object (`*.po.ts`) and, for a
+  component or directive that needs a host, its host component (`*.spec.component.ts` with its
+  `*.spec.component.html`). Each UI kit component has its own spec; there are no module level specs.
 - **Public API.** A slice is imported only through its `index.ts`; specs use its `testing.ts` (mocks, page objects, the
   worker token). Inside a slice, imports are relative; between slices, through the `~/` alias. A UI kit module is
   imported through `~/shared/ui/<module>`, so a page pulls in only the modules it uses and the signal-forms code stays
